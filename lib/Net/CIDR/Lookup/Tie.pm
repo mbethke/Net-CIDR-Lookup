@@ -41,7 +41,7 @@ use warnings;
 use Carp;
 use Net::CIDR::Lookup;
 
-$Net::CIDR::Lookup::Tie::VERSION = sprintf "%d.%d", q$Revision: 0.3 $ =~ m/ (\d+) \. (\d+) /xg;
+$Net::CIDR::Lookup::Tie::VERSION = sprintf "%d.%d", q$Revision: 0.31 $ =~ m/ (\d+) \. (\d+) /xg;
 
 sub TIEHASH {   ## no critic (Subroutines::RequireArgUnpacking)
     my $class = shift;
