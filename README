@@ -1,8 +1,9 @@
 Net-CIDR-Lookup
 
-This module provides a pure-Perl implementation of a tree of netblocks. It
-installs like most other modules (see generic instructions below) and depends
-only on Test::Class for the unit tests (which you can skip if you like).
+This module provides a pure-Perl implementation of a lookup table based on CIDR
+net blocks. It installs like most other modules (see generic instructions below)
+and depends only on Test::Class for the unit tests (which you can skip if you
+like).
 
 
 INSTALLATION
