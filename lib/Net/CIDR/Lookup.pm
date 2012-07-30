@@ -8,19 +8,13 @@ This class implements a lookup table indexed by IPv4 networks or hosts.
 
 =over 1
 
-=item *
-
-Addresses are accepted in numeric form (integer with separate netbits argument),
+=item * Addresses are accepted in numeric form (integer with separate netbits argument),
 as strings in CIDR notation or as IP address ranges
 
-=item *
-
-Overlapping or adjacent networks are automatically coalesced if their
+=item * Overlapping or adjacent networks are automatically coalesced if their
 associated values are equal.
 
-=item *
-
-The table is implemented as a binary tree so lookup and insertion take O(log n)
+=item * The table is implemented as a binary tree so lookup and insertion take O(log n)
 time.
 
 =back
@@ -82,7 +76,7 @@ latter case, an error message will be available in C<$Net::CIDR::Lookup::errstr>
 
 =over 1
 
-=item v0.3 -- first CPAN release
+=item v0.3 First CPAN release
 
 =item v0.3.1 
 
@@ -143,14 +137,14 @@ sub add {
 
     unless(defined $val) {
         $__PACKAGE__::errstr = "can't store an undef";
-        return undef;
+        return;
     }
 	my ($net, $bits) = $cidr =~ m{ ^ ([.[:digit:]]+) / (\d+) $ }ox;
     unless(defined $net and defined $bits) {
         $__PACKAGE__::errstr = 'full dotted-quad/netbits notation required';
-        return undef;
+        return;
     }
-    my $intnet = _dq2int($net) or return undef;
+    my $intnet = _dq2int($net) or return;
 	$self->_add($intnet,$bits,$val);
 }
 
@@ -172,22 +166,22 @@ sub add_range {
 
     unless(defined $val) {
         $__PACKAGE__::errstr = "can't store an undef";
-        return undef;
+        return;
     }
 
     my ($ip_start, $ip_end, $crud) = split /\s*-\s*/, $range;
     if(defined $crud or !defined $ip_end) {
         $__PACKAGE__::errstr = 'must have exactly one hyphen in range';
-        return undef;
+        return;
     }
 
-    $ip_start = _dq2int($ip_start) or return undef;
-    $ip_end   = _dq2int($ip_end)   or return undef;
+    $ip_start = _dq2int($ip_start) or return;
+    $ip_end   = _dq2int($ip_end)   or return;
     # This check will be repeated in add_num_range but we get more readable
     # errors here
     if($ip_start > $ip_end) {
         $__PACKAGE__::errstr = "start > end in range `$range'";
-        return undef;
+        return;
     }
 
     $self->add_num_range($ip_start, $ip_end, $val);
@@ -209,7 +203,7 @@ sub add_num {
     # representation ($self != $n)
     unless(defined $_[3]) {
         $__PACKAGE__::errstr = "can't store an undef";
-        return undef;
+        return;
     }
 	_add(@_);
 }
@@ -229,13 +223,13 @@ sub add_num_range {
 
     if($start > $end) {
         $__PACKAGE__::errstr = "start > end in range $start--$end";
-        return undef;
+        return;
     }
 
     my @chunks;
     _do_chunk(\@chunks, $start, $end, 31, 0);
     foreach(@chunks) {
-        $self->add_num(@$_, $val) or return undef;   # Immediately fail on first problem
+        $self->add_num(@$_, $val) or return;   # Immediately fail on first problem
     }
     1;
 }
@@ -255,7 +249,7 @@ sub lookup {
 
     # Make sure there is no network spec tacked onto $addr
     $addr =~ s!/.*!!;
-	my $ip = _dq2int($addr) or return undef;
+	my $ip = _dq2int($addr) or return;
 	$self->_lookup($ip, 32);
 }
 
@@ -384,7 +378,7 @@ sub _add {
         if(__PACKAGE__ ne ref $node) {
             return 1 if($val eq $node); # Compatible entry (tried to add a subnet of one already in the tree)
             $__PACKAGE__::errstr = "incompatible entry, found `$node' trying to add `$val'";
-            return undef;
+            return;
         }
         last DESCEND unless --$nbits;
         if(defined $node->[$bit]) {
@@ -407,7 +401,7 @@ sub _add {
         };
         if($@) {
             $__PACKAGE__::errstr = "incompatible entry, found `$@' trying to add `$val'";
-            return undef;
+            return;
         }
     }
 
@@ -416,7 +410,7 @@ sub _add {
     # Take care of potential mergers into the previous node (if $node[0] == $node[1])
     if(not @node_stack and defined $node->[$bit ^ 1] and $node->[$bit ^ 1] eq $val) {
         $__PACKAGE__::errstr = 'merging two /1 blocks is not supported yet';
-        return undef;
+        return;
     }
     MERGECHECK:
     while(1) {
@@ -434,7 +428,7 @@ sub _lookup {
 	my ($node, $addr) = @_;
 
 	my $bit = ($addr & 0x80000000) >> 31;
-	defined $node->[$bit] or return undef;
+	defined $node->[$bit] or return;
 	__PACKAGE__ ne ref $node->[$bit] and return $node->[$bit];
 	_lookup($node->[$bit], $addr << 1);
 }
@@ -444,13 +438,13 @@ sub _dq2int {
 	my @oct = split /\./, $_[0];
 	unless(4 == @oct) {
         $__PACKAGE__::errstr = "address must be in dotted-quad form, is `$_[0]'";
-        return undef;
+        return;
     }
 	my $ip = 0;
     foreach(@oct) {
         if($_ > 255 or $_ < 0) {
             $__PACKAGE__::errstr = "invalid component `$_' in address `$_[0]'";
-            return undef;
+            return;
         }
         $ip = $ip<<8 | $_;
     }
