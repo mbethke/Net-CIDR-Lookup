@@ -98,6 +98,14 @@ possible. Now the two will be merged to a single /23.
 
 =back
 
+=item v0.4
+
+=over 1
+
+=item * Version bump for inclusion of the IPv6 version
+
+=back
+
 =back
 
 =head1 METHODS
@@ -109,7 +117,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = sprintf "%d.%d", q$Revision: 0.31$ =~ m/ (\d+) \. (\d+) /xg;
+our $VERSION = sprintf "%d.%d", q$Revision: 0.4$ =~ m/ (\d+) \. (\d+) /xg;
 our $errstr  = undef;
 
 =head2 new
