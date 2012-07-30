@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name:                Net-CIDR-Lookup
 version:             0.3.1
-abstract:            ~
+abstract:            Hash-like lookup table based on CIDR blocks
 license:             perl
 author:              
     - Matthias Bethke <matthias@towiski.de>
