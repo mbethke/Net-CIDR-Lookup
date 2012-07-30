@@ -347,6 +347,11 @@ decision.
 
 =item *
 
+Using a package-global for error reporting was an incredibly stupid idea
+initially. This will change in the next version.
+
+=item *
+
 IPv6 is not supported, which is a shame.
 
 =back
