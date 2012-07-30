@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Net-CIDR-Lookup
-version:             0.3
+version:             0.3.1
 abstract:            ~
 license:             perl
 author:              
