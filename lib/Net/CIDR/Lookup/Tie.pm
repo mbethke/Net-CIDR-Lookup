@@ -4,13 +4,18 @@ Net::CIDR::Lookup::Tie
 
 =head1 DESCRIPTION
 
-This is a Tie::Hash interface to Net::CIDR::Lookup, see there for details.
+This is a L<Tie::Hash> interface to L<Net::CIDR::Lookup>, see there for
+details.
 
 The tied hash accepts net blocks as keys in the same syntax as
-Net::CIDR::Lookup::add()/add_range() and stores arbitrary scalar values under these.
-The same coalescing as in Net::CIDR::Lookup takes place, so if you add any number of
-different keys you might end up with a hash containing I<less> keys if any
-mergers took place.
+C<Net::CIDR::Lookup->add()> or C<add_range(>) and stores arbitrary (with the
+exception of C<undef>) scalar values under these. The same coalescing as in
+C<Net::CIDR::Lookup> takes place, so if you add any number of different keys
+you may end up with a hash containing I<less> keys if any mergers took place.
+
+Of course you can retrieve the corresponding net block's value for any key that
+is I<contained> within that block, so the number of possible lookup keys is
+usually far greater than that of explicitly stored key/value pairs.
 
 =head1 SYNOPSIS
 
@@ -48,6 +53,7 @@ sub TIEHASH {   ## no critic (Subroutines::RequireArgUnpacking)
 Stores a value under a given key
 
 =cut
+
 sub STORE { ## no critic (Subroutines::RequireArgUnpacking)
     my $self = shift;
     undef $self->{keys};
@@ -63,6 +69,7 @@ sub STORE { ## no critic (Subroutines::RequireArgUnpacking)
 Fetches the value stored under a given key
 
 =cut
+
 sub FETCH {
     my ($self, $key) = @_;
     $self->{tree}->lookup($key);
@@ -73,6 +80,7 @@ sub FETCH {
 Gets the first key in the hash. Used for iteration with each()
 
 =cut
+
 sub FIRSTKEY {
     my $self = shift;
     $self->_updkeys;
@@ -84,6 +92,7 @@ sub FIRSTKEY {
 Gets the next key from the hash. Used for iteration with each()
 
 =cut
+
 sub NEXTKEY {
     each %{shift->{keys}};
 }
@@ -94,6 +103,7 @@ Tests if a key is in the hash. Also returns true for blocks or addresses
 contained within a block that was actually stored.
 
 =cut
+
 sub EXISTS {
     my ($self, $key) = @_;
     $self->_updkeys;
@@ -106,6 +116,7 @@ Delete a key from the hash. Note that the same restrictions as for Net::CIDR::Lo
 regarding netblock splitting apply!
 
 =cut
+
 sub DELETE {
     carp('Deletions are not supported by tied ' . __PACKAGE__ . ' objects yet!');
 }
@@ -115,6 +126,7 @@ sub DELETE {
 Deletes all keys and their values.
 
 =cut
+
 sub CLEAR {
     my $self = shift;
     $self->{tree}->clear;
@@ -125,6 +137,7 @@ sub CLEAR {
 Returns the number of keys in the hash
 
 =cut
+
 sub SCALAR {
     my $self = shift;
     $self->_updkeys;
@@ -136,6 +149,7 @@ sub SCALAR {
 Private method to update the internal key cache used for iteration
 
 =cut
+
 sub _updkeys {
     my $self = shift;
 
