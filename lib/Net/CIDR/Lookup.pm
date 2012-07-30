@@ -119,6 +119,7 @@ Arguments: none
 Return Value: new object
 
 =cut
+
 sub new { bless [], shift }
 
 =head2 add
@@ -132,6 +133,7 @@ IPv4 address followed by a slash and a number of network bits. Bits to the
 right of this mask will be ignored.
 
 =cut
+
 sub add {
 	my ($self, $cidr, $val) = @_;
 
@@ -161,6 +163,7 @@ smaller the second. This range will be split up into as many CIDR blocks as
 necessary (algorithm adapted from a script by Dr. Liviu Daia).
 
 =cut
+
 sub add_range {
     my ($self, $range, $val) = @_;
 
@@ -197,6 +200,7 @@ Like C<add()> but accepts address and bits as separate integer arguments
 instead of a string.
 
 =cut
+
 sub add_num { ## no critic (Subroutines::RequireArgUnpacking)
     # my ($self,$ip,$bits,$val) = @_;
 	# Just call the recursive adder for now but allow for changes in object
@@ -218,6 +222,7 @@ Like C<add_range()> but accepts addresses as separate integer arguments instead
 of a range string.
 
 =cut
+
 sub add_num_range {
     my ($self, $start, $end, $val) = @_;
 
@@ -244,6 +249,7 @@ Looks up an address and returns the value associated with the network
 containing it. So far there is no way to tell which network that is though.
 
 =cut
+
 sub lookup {
 	my ($self, $addr) = @_;
 
@@ -263,6 +269,7 @@ Return Value: value assoiated with this address or C<undef>
 Like C<lookup()> but accepts the address in integer form.
 
 =cut
+
 sub lookup_num { _lookup(@_, 32) } ## no critic (Subroutines::RequireArgUnpacking)
 
 =head2 dump
@@ -275,6 +282,7 @@ Returns a hash representation of the tree with keys being CIDR-style network
 addresses.
 
 =cut
+
 sub dump {  ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 	my ($self) = @_;
 	my %result;
@@ -313,6 +321,7 @@ The value associated with this block
 Return Value: nothing useful
 
 =cut
+
 sub walk { $_[0]->_walk(0, 0, $_[1]) } ## no critic (Subroutines::RequireArgUnpacking)
 
 
@@ -325,6 +334,7 @@ Return Value: nothing useful
 Remove all entries from the tree.
 
 =cut
+
 sub clear {
     my $self = shift;
     undef @$self;
