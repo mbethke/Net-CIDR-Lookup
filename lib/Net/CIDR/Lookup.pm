@@ -170,7 +170,7 @@ sub add_range {
     }
 
     my ($ip_start, $ip_end, $crud) = split /\s*-\s*/, $range;
-    if(defined $crud or !defined $ip_end) {
+    if(defined $crud or not defined $ip_end) {
         $__PACKAGE__::errstr = 'must have exactly one hyphen in range';
         return;
     }
@@ -197,7 +197,7 @@ Like C<add()> but accepts address and bits as separate integer arguments
 instead of a string.
 
 =cut
-sub add_num {
+sub add_num { ## no critic (Subroutines::RequireArgUnpacking)
     # my ($self,$ip,$bits,$val) = @_;
 	# Just call the recursive adder for now but allow for changes in object
     # representation ($self != $n)
@@ -263,7 +263,7 @@ Return Value: value assoiated with this address or C<undef>
 Like C<lookup()> but accepts the address in integer form.
 
 =cut
-sub lookup_num { _lookup(@_, 32) }
+sub lookup_num { _lookup(@_, 32) } ## no critic (Subroutines::RequireArgUnpacking)
 
 =head2 dump
 
@@ -275,7 +275,7 @@ Returns a hash representation of the tree with keys being CIDR-style network
 addresses.
 
 =cut
-sub dump {
+sub dump {  ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 	my ($self) = @_;
 	my %result;
 	$self->_walk(0, 0, sub {
@@ -313,7 +313,7 @@ The value associated with this block
 Return Value: nothing useful
 
 =cut
-sub walk { $_[0]->_walk(0, 0, $_[1]) }
+sub walk { $_[0]->_walk(0, 0, $_[1]) } ## no critic (Subroutines::RequireArgUnpacking)
 
 
 =head2 clear
@@ -392,17 +392,7 @@ sub _add {
     }
     
     if($checksub and __PACKAGE__ eq ref $node->[$bit]) {
-        eval {
-            $node->[$bit]->_walk(0, 0, sub {
-                    my $oldval = $_[2];
-                    $val == $oldval or die $oldval;
-                }
-            );
-        };
-        if($@) {
-            $__PACKAGE__::errstr = "incompatible entry, found `$@' trying to add `$val'";
-            return;
-        }
+        _add_check_subtree($node->[$bit], $val) or return;
     }
 
     $node->[$bit] = $val;
@@ -412,16 +402,33 @@ sub _add {
         $__PACKAGE__::errstr = 'merging two /1 blocks is not supported yet';
         return;
     }
-    MERGECHECK:
     while(1) {
-        $node = pop @node_stack // last MERGECHECK;
-        if(defined $$node->[0] and defined $$node->[1] and $$node->[0] eq $$node->[1]) {
-            $$node = $val;
-        } else {
-            last MERGECHECK;
-        }
+        $node = pop @$node_stack // last;
+        last unless(defined $$node->[0] and defined $$node->[1] and $$node->[0] eq $$node->[1]);
+        $$node = $val;
     }
     1;
+}
+
+# Check an existing subtree for incompatible values. Returns false and sets the
+# package-global error string if there was a problem.
+sub _add_check_subtree {
+    my ($root, $val) = @_;
+
+    eval {
+        $root->_walk(0, 0, sub {
+                my $oldval = $_[2];
+                $val == $oldval or die $oldval; ## no critic (ErrorHandling::RequireCarping)
+            }
+        );
+        1;
+    } or do {
+        if($@) {
+            $__PACKAGE__::errstr = "incompatible entry, found `$@' trying to add `$val'";
+            return;
+        }
+    };
+    return 1;
 }
 
 sub _lookup {
@@ -434,7 +441,7 @@ sub _lookup {
 }
 
 # Dotted-quad to integer
-sub _dq2int {
+sub _dq2int { ## no critic (Subroutines::RequireArgUnpacking)
 	my @oct = split /\./, $_[0];
 	unless(4 == @oct) {
         $__PACKAGE__::errstr = "address must be in dotted-quad form, is `$_[0]'";
@@ -480,8 +487,7 @@ sub _walk {
 # Split a chunk into a minimal number of CIDR blocks.
 sub _do_chunk {
     my ($chunks, $start, $end, $ix1, $ix2) = @_;
-    my ($prefix, $lowbits);
-    my $xor;
+    my ($prefix, $xor);
 
     # Find common prefix.  After that, the bit indicated by $ix1 is 0 for $start
     # and 1 for $end. A split a this point guarantees the longest suffix.
@@ -490,8 +496,8 @@ sub _do_chunk {
     $prefix = $start & ~((1 << ($ix1+1)) - 1);
 
     $ix2++ while($ix2 <= $ix1
-            and !($start & 1 << $ix2)
-            and  ($end   & 1 << $ix2));
+            and not ($start & 1 << $ix2)
+            and     ($end   & 1 << $ix2));
 
     # Split if $fbits and $lbits disagree on the length of the chunk.
     if ($ix2 <= $ix1) {

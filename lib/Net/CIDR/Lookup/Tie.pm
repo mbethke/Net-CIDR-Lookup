@@ -38,7 +38,7 @@ use Net::CIDR::Lookup;
 
 $Net::CIDR::Lookup::Tie::VERSION = sprintf "%d.%d", q$Revision: 0.3 $ =~ m/ (\d+) \. (\d+) /xg;
 
-sub TIEHASH {
+sub TIEHASH {   ## no critic (Subroutines::RequireArgUnpacking)
     my $class = shift;
     bless { tree => Net::CIDR::Lookup->new(@_) }, $class;
 }
@@ -48,7 +48,7 @@ sub TIEHASH {
 Stores a value under a given key
 
 =cut
-sub STORE {
+sub STORE { ## no critic (Subroutines::RequireArgUnpacking)
     my $self = shift;
     undef $self->{keys};
     if($_[0] =~ /-/) {
