@@ -32,6 +32,8 @@ usually far greater than that of explicitly stored key/value pairs.
 
 =head1 HISTORY
 
+=over 1
+
 =item v0.3 First CPAN release
 
 =item v0.41 Version bumped to sync with IPv6 version
