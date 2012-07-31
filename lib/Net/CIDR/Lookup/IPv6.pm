@@ -31,6 +31,15 @@ error.
 
 =item v0.4 First CPAN release
 
+=item v0.41 Fixed prerequisite list
+
+=over 1
+
+=item * Fixed prerequisite list
+
+=back
+
+
 =back
 
 =head1 METHODS
@@ -45,7 +54,7 @@ use Socket qw/ getaddrinfo unpack_sockaddr_in6 inet_ntop AF_INET6 /;
 use Bit::Vector;
 use parent 'Net::CIDR::Lookup';
 
-our $VERSION = sprintf "%d.%d", q$Revision: 0.4$ =~ m/ (\d+) \. (\d+) /xg;
+our $VERSION = sprintf "%d.%d", q$Revision: 0.41$ =~ m/ (\d+) \. (\d+) /xg;
 
 =head2 add
 

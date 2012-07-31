@@ -30,6 +30,14 @@ usually far greater than that of explicitly stored key/value pairs.
 
   foreach(keys %h) { ... }			 # Do anything you'd do with a regular hash
 
+=head1 HISTORY
+
+=item v0.3 First CPAN release
+
+=item v0.41 Version bumped to sync with IPv6 version
+
+=back
+
 =head1 METHODS
 
 =cut
@@ -41,7 +49,7 @@ use warnings;
 use Carp;
 use Net::CIDR::Lookup;
 
-$Net::CIDR::Lookup::Tie::VERSION = sprintf "%d.%d", q$Revision: 0.31 $ =~ m/ (\d+) \. (\d+) /xg;
+$Net::CIDR::Lookup::Tie::VERSION = sprintf "%d.%d", q$Revision: 0.41 $ =~ m/ (\d+) \. (\d+) /xg;
 
 sub TIEHASH {   ## no critic (Subroutines::RequireArgUnpacking)
     my $class = shift;
