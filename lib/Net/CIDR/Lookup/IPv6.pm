@@ -372,11 +372,14 @@ sub _add_check_subtree {
 
 sub _lookup {
 	my ($node, $addr) = @_;
+    my $bit;
 
-    my $bit = $addr->shift_left(0);
-	defined $node->[$bit] or return;
-	__PACKAGE__ ne ref $node->[$bit] and return $node->[$bit];
-	_lookup($node->[$bit], $addr);
+    while(1) {
+        $bit = $addr->shift_left(0);
+        defined $node->[$bit] or return;
+        __PACKAGE__ ne ref $node->[$bit] and return $node->[$bit];
+        $node = $node->[$bit];
+    }
 }
 
 # Convert a packed IPv6 address to a Bit::Vector object
