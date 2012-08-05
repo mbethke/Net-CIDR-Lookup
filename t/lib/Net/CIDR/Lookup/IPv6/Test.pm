@@ -27,6 +27,10 @@ sub before : Test(setup) {
     $self->{tree} = Net::CIDR::Lookup::IPv6->new;
 }
 
+sub _needs_ipv6 : Test(setup) {
+    shift->SKIP_ALL('needs IPv6 support in Socket module')
+    unless defined eval { Socket::AF_INET6() };
+}
 #-------------------------------------------------------------------------------
 
 sub add : Tests(5) {
@@ -39,20 +43,20 @@ sub add : Tests(5) {
     is($t->lookup('::1'), undef, 'No result outside blocks');
 }
 
-1;
-__END__
-
-sub add_range : Tests(6) {
+sub add_range : Tests(4) {
     my $self = shift;
     my $t = $self->{tree};
-    is($t->add_range('192.168.0.130-192.170.0.1', 42), 1, 'add_range() succeeded');
-    is($t->add_range('1.3.123.234 - 1.3.123.240', 23), 1, 'add_range() succeeded');
-    is($t->lookup('192.169.0.22'), 42, 'Range 192.168.0.130 - 192.170.0.1');
-    is($t->lookup('1.3.123.235'),  23, 'Range 1.3.123.234 - 1.3.123.240');
-    is($t->lookup('2.3.4.5'), undef, 'No result outside blocks');
+    $t->add_range('2001:db8::-2003:db8::abc', 42);
+    $t->add_range('1::1234 - 1::1:2345', 23);
+    is($t->lookup('2002:cb8::abc'),  42, 'Range 2001:db8::--2002:db8::abc OK');
+    is($t->lookup('1::ffff'), 23, 'Range 1::1234--1::1:2345 OK');
+    is($t->lookup('f::'), undef, 'No result outside blocks');
     my $h = $t->dump;
-    is(scalar keys %$h, 19, 'Range expansion: number of keys');
+    is(scalar keys %$h, 39, 'Range expansion: number of keys');
 }
+
+1;
+__END__
 
 sub collision : Tests(2) {
     my $self = shift;
