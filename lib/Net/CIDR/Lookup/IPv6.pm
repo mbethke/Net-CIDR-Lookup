@@ -409,6 +409,7 @@ sub _walk {
 
 	++$bits;
     # Check left side
+    $addr->Bit_Off(128 - $bits);
 	if(__PACKAGE__ eq ref $a) {
 		$a->_walk($addr, $bits, $cb);
 	} else {
