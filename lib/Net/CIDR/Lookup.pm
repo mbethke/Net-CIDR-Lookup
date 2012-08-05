@@ -448,11 +448,15 @@ sub _add_check_subtree {
 
 sub _lookup {
 	my ($node, $addr) = @_;
+    my $bit;
 
-	my $bit = ($addr & 0x80000000) >> 31;
-	defined $node->[$bit] or return;
-	__PACKAGE__ ne ref $node->[$bit] and return $node->[$bit];
-	_lookup($node->[$bit], $addr << 1);
+    while(1) {
+        $bit = ($addr & 0x80000000) >> 31;
+        defined $node->[$bit] or return;
+        __PACKAGE__ ne ref $node->[$bit] and return $node->[$bit];
+        $node = $node->[$bit];
+        $addr <<= 1;
+    }
 }
 
 # Dotted-quad to integer
