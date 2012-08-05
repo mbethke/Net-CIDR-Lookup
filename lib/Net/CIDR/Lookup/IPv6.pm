@@ -237,7 +237,6 @@ sub dump {  ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 	my ($self) = @_;
 	my %result;
 	$self->_walk(Bit::Vector->new(128), 0, sub {
-            my ($addr, $bits, $val) = @_;
             my $net = _addr2print($_[0]) . '/' . $_[1];
             if(defined $result{$net}) {
                 confess "internal error: network $net mapped to $result{$net} already!";
@@ -427,42 +426,39 @@ sub _walk {
 # Split a chunk into a minimal number of CIDR blocks.
 sub _do_chunk {
     my ($chunks, $start, $end, $ix1, $ix2) = @_;
-    my ($xor, $lowbits, $prefix, $tmp_prefix) = Bit::Vector->new(128, 4);
+    my ($xor, $prefix, $tmp_prefix) = Bit::Vector->new(128, 3);
 
     # Find common prefix.  After that, the bit indicated by $ix1 is 0 for $start
     # and 1 for $end. A split a this point guarantees the longest suffix.
     $xor->Xor($start, $end);
-    #print "--------------------------------------------------------------------------------\n";
-    #print "Start : ",$start->to_Hex,"\n";
-    #print "End   : ",$end->to_Hex,"\n";
-    #print "XOR   : ",$xor->to_Hex,"\n";
-    --$ix1 until($xor->bit_test($ix1) or -1 == $ix1);
-    $prefix->Interval_Fill($ix1, 127);
+    #print STDERR "--------------------------------------------------------------------------------\n";
+    #print STDERR "Start : ",$start->to_Hex,"\n";
+    #print STDERR "End   : ",$end->to_Hex,"\n";
+    #print STDERR "XOR   : ",$xor->to_Hex,"\n";
+    --$ix1 until(-1 == $ix1 or $xor->bit_test($ix1));
+    $prefix->Interval_Fill($ix1+1, 127);
     $prefix->And($prefix, $start);
 
     $ix2++ while($ix2 <= $ix1
             and not $start->bit_test($ix2)
             and $end->bit_test($ix2));
 
-    #print "After loop: ix1=$ix1, ix2=$ix2, ";
-    #print "Prefix: ",$prefix->to_Hex,"\n";
+    #print STDERR "After loop: ix1=$ix1, ix2=$ix2, ";
+    #print STDERR "Prefix: ",$prefix->to_Hex,"\n";
 
-    # Split if $fbits and $lbits disagree on the length of the chunk.
     if ($ix2 <= $ix1) {
-        #print "splitting\n";
-        #print "Recursing with $ix1 lowbits=1 in end\n";
+        #print STDERR "Recursing with $ix1 lowbits=1 in end\n";
         $tmp_prefix->Copy($prefix);
         $tmp_prefix->Interval_Fill(0, $ix1-1);
         _do_chunk($chunks, $start, $tmp_prefix, $ix1, $ix2);
 
-        #print "Recursing with $ix1 lowbits=0 in start\n";
+        #print STDERR "Recursing with $ix1 lowbits=0 in start\n";
         $tmp_prefix->Copy($prefix);
         $tmp_prefix->Bit_On($ix1);
         _do_chunk($chunks, $tmp_prefix, $end, $ix1, $ix2);
     } else {
-        #print "not splitting\n";
         push @$chunks, [ $prefix, 127-$ix1 ];
-        #printf "Result: %s/%d\n", $chunks->[-1][0]->to_Hex, $chunks->[-1][1];
+        #printf STDERR "Result: %s/%d\n", $chunks->[-1][0]->to_Hex, $chunks->[-1][1];
     }
 }
 
