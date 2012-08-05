@@ -12,9 +12,10 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
-        'Test::More' => 0,
+        'Test::More'  => 0,
         'Test::Class' => 0,
         'Bit::Vector' => 0,
+        'Socket'      => 1.94,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Net-CIDR-Lookup-*' },
