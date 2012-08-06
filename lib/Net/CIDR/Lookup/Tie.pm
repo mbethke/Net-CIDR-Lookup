@@ -45,7 +45,7 @@ use warnings;
 use Carp;
 use Net::CIDR::Lookup;
 
-$Net::CIDR::Lookup::Tie::VERSION = sprintf "%d.%d", q$Revision: 0.41 $ =~ m/ (\d+) \. (\d+) /xg;
+our $VERSION = '0.5';
 
 sub TIEHASH {   ## no critic (Subroutines::RequireArgUnpacking)
     my $class = shift;
@@ -160,7 +160,7 @@ sub _updkeys {
     if(defined $self->{keys}) {
         keys %{$self->{keys}};                  # Call in void context to reset
     } else {
-        $self->{keys} = $self->{tree}->dump;    # Recreate hash
+        $self->{keys} = $self->{tree}->to_hash; # Recreate hash
     }
 }
 1;
