@@ -4,12 +4,10 @@ Net::CIDR::Lookup::IPv6
 
 =head1 DESCRIPTION
 
-This is the IPv6 version of L<Net::CIDR::Lookup>. It generally offers the same methods but with the following differences:
-
-=over 1
-
-=item * The C<add_num>/C<add_num_range> methods that accept an IPv4 address as
-an integer have been split in two:
+This is the IPv6 version of L<Net::CIDR::Lookup>. It generally provides the
+same methods, with the distinction that the C<add_num>/C<add_num_range> methods
+that accept an IPv4 address as an integer have been split in two to accommodate
+different representations for an IPv6 address:
 
 =over 1
 
@@ -19,28 +17,9 @@ an integer have been split in two:
 
 =back
 
-=item * The API does not use return values and a global C<$errstr> variable to
-signal success or failure but raises an exception (i.e. dies with a message) on
-error.
+=head1 VERSION HISTORY
 
-=back
-
-=head1 HISTORY
-
-=over 1
-
-=item v0.4 First CPAN release
-
-=item v0.41 Fixed prerequisite list
-
-=over 1
-
-=item * Fixed prerequisite list
-
-=back
-
-
-=back
+See L<Net::CIDR::Lookup::IPv6::Changes>
 
 =head1 METHODS
 
