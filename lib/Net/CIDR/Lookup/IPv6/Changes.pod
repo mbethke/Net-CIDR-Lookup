@@ -1,0 +1,26 @@
+=head1 VERSION HISTORY
+
+=over 1
+
+=item V0.5
+
+=over 1
+
+=item B<Attention: Breaking Change!> C<dump> is called more sensibly C<to_hash> now.
+
+=item * Replaced the recursive implementations of C<lookup()> and C<walk()> with
+iterative ones for about a 30% speed increase.
+
+=item * Fixed C<lookup_vec()>
+
+=item * Moved version history to its own POD file
+
+=back
+
+=item v0.41 Fixed prerequisite list
+
+=item v0.4 First CPAN release
+
+=back
+
+

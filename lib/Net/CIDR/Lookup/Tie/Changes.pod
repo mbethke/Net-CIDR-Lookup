@@ -1,0 +1,24 @@
+=head1 VERSION HISTORY
+
+=over 1
+
+=item V0.5
+
+=over 1
+
+=item * B<Attention: Breaking Change!>
+
+Due to new L<Net::CIDR::Lookup> API, innocuous-looking store/retrie
+operations may now cause exceptions!
+
+=item * Moved version history to its own POD file
+
+=back
+
+=item v0.41 Version bump to sync with IPv6 version
+
+=item v0.3 First CPAN release
+
+=back
+
+

@@ -1,0 +1,58 @@
+=head1 VERSION HISTORY
+
+=over 1
+
+=item V0.5
+
+B<Attention: Breaking Changes!>
+
+=over 1
+
+=item * This version removes the global C<$errstr> variable and switches to the
+same interface as L<Net::CIDR::Lookup::IPv6> that signals errors using
+exceptions. So all menthods but C<new> may now die if you don't wrap them in
+C<eval>or equivalent.
+
+=item * C<dump> is called more sensibly C<to_hash> now.
+
+=back
+
+Regular changes that shouldn't break anything:
+
+=over 1
+
+=item * Replaced the recursive implementations of C<lookup()> and C<walk()> with
+iterative ones for about a 30% speed increase.
+
+=item * Moved version history to its own POD file
+
+=back
+
+=item v0.41 Version bump to sync with IPv6 version
+
+=item v0.4 Version bump for inclusion of the IPv6 version
+
+=item v0.3.1 
+
+=over 1
+
+=item * Replaced the simplistic list-based CIDR block splitting function with bit-fiddling for about a threefold speedup of C<add_num_range> and slightly less in C<add_range>.
+
+=item * Recursive merging-up up of blocks during C<add_*> works now. If e.g.
+you had a /24 and an adjacent /25 net with the same value before, adding a new
+/25 would have merged the new block with the existing /25, resulting in two
+adjacent /24s with the same value because only single-level merging was
+possible. Now the two will be merged to a single /23.
+
+=item * Removed some redundant tests and added new ones.
+
+=item * Removed some leftover debug code.
+
+=item * Some small fixes/improvements like stricter range checking in C<add_range>
+
+=back
+
+=item v0.3 First CPAN release
+
+=back
+
