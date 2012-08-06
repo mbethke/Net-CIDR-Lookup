@@ -2,16 +2,14 @@ package Net::CIDR::Lookup::IPv6::Test;
 
 use strict;
 use warnings;
-
-use base 'Test::Class';
+use parent 'My::Test::Class';
 use Test::More;
 use Test::Exception;
-use Net::CIDR::Lookup::IPv6;
 
 #-------------------------------------------------------------------------------
 
 sub check_methods : Test(startup => 8) {
-    my $t = Net::CIDR::Lookup::IPv6->new;
+    my $t = shift->class->new;
     can_ok($t,'add');
     can_ok($t,'add_num');
     can_ok($t,'add_range');
@@ -24,7 +22,7 @@ sub check_methods : Test(startup => 8) {
 
 sub before : Test(setup) {
     my $self = shift;
-    $self->{tree} = Net::CIDR::Lookup::IPv6->new;
+    $self->{tree} = $self->class->new;
 }
 
 sub _needs_ipv6 : Test(setup) {
@@ -34,8 +32,7 @@ sub _needs_ipv6 : Test(setup) {
 #-------------------------------------------------------------------------------
 
 sub add : Tests(3) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('2001:db8::/32', 42);
     $t->add('2002:db8::/31', 23);
     is($t->lookup('2001:db8::1234'), 42, 'Block 2001:db8::/32 lookup OK');
@@ -44,8 +41,7 @@ sub add : Tests(3) {
 }
 
 sub add_range : Tests(4) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add_range('2001:db8::-2003:db8::abc', 42);
     $t->add_range('1::1234 - 1::1:2345', 23);
     is($t->lookup('2002:cb8::abc'),  42, 'Range 2001:db8::--2002:db8::abc OK');

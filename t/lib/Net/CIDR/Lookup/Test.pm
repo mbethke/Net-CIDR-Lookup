@@ -2,16 +2,14 @@ package Net::CIDR::Lookup::Test;
 
 use strict;
 use warnings;
-
-use base 'Test::Class';
+use parent 'My::Test::Class';
 use Test::More;
 use Test::Exception;
-use Net::CIDR::Lookup;
 
 #-------------------------------------------------------------------------------
 
 sub check_methods : Test(startup => 8) {
-    my $t = Net::CIDR::Lookup->new;
+    my $t = shift->class->new;
     can_ok($t,'add');
     can_ok($t,'add_num');
     can_ok($t,'add_range');
@@ -24,14 +22,13 @@ sub check_methods : Test(startup => 8) {
 
 sub before : Test(setup) {
     my $self = shift;
-    $self->{tree} = Net::CIDR::Lookup->new;
+    $self->{tree} = $self->class->new;
 }
 
 #-------------------------------------------------------------------------------
 
 sub add : Tests(3) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.129/25', 42);
     $t->add('1.2.0.0/15', 23);
     is($t->lookup('192.168.0.161'), 42, 'Block 192.168.0.129/25 lookup OK');
@@ -40,8 +37,7 @@ sub add : Tests(3) {
 }
 
 sub add_range : Tests(4) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add_range('192.168.0.130-192.170.0.1', 42);
     $t->add_range('1.3.123.234 - 1.3.123.240', 23);
     is($t->lookup('192.169.0.22'), 42, 'Range 192.168.0.130 - 192.170.0.1');
@@ -52,22 +48,19 @@ sub add_range : Tests(4) {
 }
 
 sub collision : Test(1) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.129/25', 42);
     dies_ok(sub { $t->add('192.168.0.160/31', 23) }, 'Collision: add() failed as expected');
 }
 
 sub benign_collision : Test(1) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.129/25', 42);
     lives_ok(sub { $t->add('192.168.0.160/31', 42) }, 'Benign collision: add() succeeded');
 }
 
 sub merger : Tests(2) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.130/25', 42);
     $t->add('192.168.0.0/25', 42);
     my $h = $t->to_hash;
@@ -77,8 +70,7 @@ sub merger : Tests(2) {
 }
 
 sub recursive_merger : Tests(2) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('0.1.1.0/24', 42);
     $t->add('0.1.0.128/25', 42);
     $t->add('0.1.0.0/25', 42);
@@ -89,8 +81,7 @@ sub recursive_merger : Tests(2) {
 }
 
 sub nonmerger : Tests(1) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.130/25', 42);
     $t->add('192.168.0.0/25', 23);
     my $h = $t->to_hash;
@@ -98,8 +89,7 @@ sub nonmerger : Tests(1) {
 }
 
 sub equalrange : Tests(2) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.130/25', 1);
     $t->add('192.168.0.130/25', 1);
     my $h = $t->to_hash;
@@ -108,8 +98,7 @@ sub equalrange : Tests(2) {
 }
 
 sub subrange1 : Tests(2) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.1/24', 1);
     $t->add('192.168.0.1/25', 1);
     my $h = $t->to_hash;
@@ -118,8 +107,7 @@ sub subrange1 : Tests(2) {
 }
 
 sub subrange2 : Tests(2) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.1/24', 1);
     $t->add('192.168.0.1/28', 1);
     my $h = $t->to_hash;
@@ -128,8 +116,7 @@ sub subrange2 : Tests(2) {
 }
 
 sub superrange1 : Tests(2) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.128/25', 1);
     $t->add('192.168.0.0/24', 1);
     my $h = $t->to_hash;
@@ -138,8 +125,7 @@ sub superrange1 : Tests(2) {
 }
 
 sub superrange2 : Tests(2) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.160.128/25', 1);
     $t->add('192.168.160.0/20', 1);
     my $h = $t->to_hash;
@@ -148,8 +134,7 @@ sub superrange2 : Tests(2) {
 }
 
 sub clear : Tests(1) {
-    my $self = shift;
-    my $t = $self->{tree};
+    my $t = shift->{tree};
     $t->add('192.168.0.129/25', 42);
     $t->clear;
     is(scalar keys %{$t->to_hash}, 0, 'Reinitialized tree');
