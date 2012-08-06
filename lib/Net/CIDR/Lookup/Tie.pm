@@ -30,15 +30,9 @@ usually far greater than that of explicitly stored key/value pairs.
 
   foreach(keys %h) { ... }			 # Do anything you'd do with a regular hash
 
-=head1 HISTORY
+=head1 VERSION HISTORY
 
-=over 1
-
-=item v0.3 First CPAN release
-
-=item v0.41 Version bumped to sync with IPv6 version
-
-=back
+See L<Net::CIDR::Lookup::Tie::Changes>
 
 =head1 METHODS
 
