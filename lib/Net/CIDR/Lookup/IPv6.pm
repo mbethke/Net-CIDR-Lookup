@@ -33,7 +33,7 @@ use Socket qw/ getaddrinfo unpack_sockaddr_in6 inet_ntop AF_INET6 /;
 use Bit::Vector;
 use parent 'Net::CIDR::Lookup';
 
-our $VERSION = sprintf "%d.%d", q$Revision: 0.41$ =~ m/ (\d+) \. (\d+) /xg;
+our $VERSION = '0.5';
 
 =head2 add
 
@@ -171,8 +171,7 @@ sub lookup {
 
     # Make sure there is no network spec tacked onto $addr
     $addr =~ s!/.*!!;
-	my $ip = _parse_address($addr);
-	$self->_lookup($ip);
+	$self->_lookup(_parse_address($addr));
 }
 
 
@@ -186,7 +185,7 @@ Like C<lookup()> but accepts the address as a Bit::Vector object.
 
 =cut
 
-sub lookup_vec { _lookup($_[0]) }   ## no critic (Subroutines::RequireArgUnpacking)
+sub lookup_vec { _lookup($_[0], $_[1]->Clone) }   ## no critic (Subroutines::RequireArgUnpacking)
 
 =head2 lookup_str
 
@@ -201,7 +200,7 @@ C<Socket::unpack_sockaddr_in6>.
 
 sub lookup_str { _lookup(_str2vec($_[0])) }   ## no critic (Subroutines::RequireArgUnpacking)
 
-=head2 dump
+=head2 to_hash
 
 Arguments: none
 
@@ -212,7 +211,7 @@ addresses.
 
 =cut
 
-sub dump {  ## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub to_hash {
 	my ($self) = @_;
 	my %result;
 	$self->_walk(Bit::Vector->new(128), 0, sub {
@@ -351,6 +350,7 @@ sub _add_check_subtree {
 sub _lookup {
 	my ($node, $addr) = @_;
     my $bit;
+    #printf "_lookup($node, %s)\n", $addr->to_Hex;
 
     while(1) {
         $bit = $addr->shift_left(0);
