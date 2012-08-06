@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 3;
 
 sub not_in_file_ok {
     my ($filename, %regex) = @_;
@@ -42,10 +42,6 @@ TODO: {
   not_in_file_ok(README =>
     "The README is used..."       => qr/The README is used/,
     "'version information here'"  => qr/to provide version information/,
-  );
-
-  not_in_file_ok(Changes =>
-    "placeholder date/time"       => qr(Date/time)
   );
 
   module_boilerplate_ok('lib/Net/CIDR/Lookup.pm');
