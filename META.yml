@@ -1,15 +1,26 @@
---- #YAML:1.0
-name:                Net-CIDR-Lookup
-version:             0.3.1
-abstract:            Hash-like lookup table based on CIDR blocks
-license:             perl
-author:              
-    - Matthias Bethke <matthias@towiski.de>
-generated_by:        ExtUtils::MakeMaker version 6.42
-distribution_type:   module
-requires:     
-    Test::Class:                   0
-    Test::More:                    0
+---
+abstract: 'Hash-like lookup table based on CIDR blocks'
+author:
+  - 'Matthias Bethke <matthias@towiski.de>'
+build_requires:
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+distribution_type: module
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.57_05'
+license: perl
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Net-CIDR-Lookup
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Bit::Vector: 0
+  Socket: 1.94
+  Test::Class: 0
+  Test::More: 0
+version: 0.5
