@@ -19,8 +19,7 @@ time.
 
 =back
 
-Methods generally return a true value on success and C<undef> on error. In the
-latter case, an error message will be available in C<$Net::CIDR::Lookup::errstr>
+Since V0.5, errors are signalled by an exception so method calls should generally by wrapped in an C<eval>.
 
 =head1 SYNOPSIS
 
@@ -33,7 +32,7 @@ latter case, an error message will be available in C<$Net::CIDR::Lookup::errstr>
   $cidr->add("192.168.41.0/24",2);    # Stays separate due to different value
   $cidr->add("192.168.42.128/25",2);  # Error: overlaps with different value
 
-  $h = $cidr->dump;                   # Convert tree to a hash
+  $h = $cidr->to_hash;                   # Convert tree to a hash
 
   print "$k => $v\n" while(($k,$v) = each %$h);
 
@@ -55,7 +54,7 @@ latter case, an error message will be available in C<$Net::CIDR::Lookup::errstr>
 
   $cidr->clear;                                 # Remove all entries
   $cidr->add_range('1.2.3.11 - 1.2.4.234', 42); # Add a range of addresses, automatically split into CIDR blocks
-  $h = $cidr->dump;
+  $h = $cidr->to_hash;
   print "$k => $v\n" while(($k,$v) = each %$h);
 
   # Output (order may vary):
@@ -72,37 +71,9 @@ latter case, an error message will be available in C<$Net::CIDR::Lookup::errstr>
   # 1.2.3.11/32 => 42
   # 1.2.4.192/27 => 42
 
-=head1 HISTORY
+=head1 VERSION HISTORY
 
-=over 1
-
-=item v0.3 First CPAN release
-
-=item v0.3.1 
-
-=over 1
-
-=item * Replaced the simplistic list-based CIDR block splitting function with bit-fiddling for about a threefold speedup of C<add_num_range> and slightly less in C<add_range>.
-
-=item * Recursive merging-up up of blocks during C<add_*> works now. If e.g.
-you had a /24 and an adjacent /25 net with the same value before, adding a new
-/25 would have merged the new block with the existing /25, resulting in two
-adjacent /24s with the same value because only single-level merging was
-possible. Now the two will be merged to a single /23.
-
-=item * Removed some redundant tests and added new ones.
-
-=item * Removed some leftover debug code.
-
-=item * Some small fixes/improvements like stricter range checking in C<add_range>
-
-=back
-
-=item v0.4 Version bump for inclusion of the IPv6 version
-
-=item v0.41 Version bumped to sync with IPv6 version
-
-=back
+See L<Net::CIDR::Lookup::Changes>
 
 =head1 METHODS
 
@@ -113,8 +84,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = sprintf "%d.%d", q$Revision: 0.41$ =~ m/ (\d+) \. (\d+) /xg;
-our $errstr  = undef;
+our $VERSION = '0.5';
 
 =head2 new
 
@@ -130,7 +100,7 @@ sub new { bless [], shift }
 
 Arguments: C<$cidr>, C<$value>
 
-Return Value: true for successful completion, C<undef> otherwise
+Return Value: none
 
 Adds VALUE to the tree under the key CIDR. CIDR must be a string containing an
 IPv4 address followed by a slash and a number of network bits. Bits to the
@@ -141,15 +111,10 @@ right of this mask will be ignored.
 sub add {
 	my ($self, $cidr, $val) = @_;
 
-    unless(defined $val) {
-        $__PACKAGE__::errstr = "can't store an undef";
-        return;
-    }
+    defined $val or croak "can't store an undef";
+
 	my ($net, $bits) = $cidr =~ m{ ^ ([.[:digit:]]+) / (\d+) $ }ox;
-    unless(defined $net and defined $bits) {
-        $__PACKAGE__::errstr = 'full dotted-quad/netbits notation required';
-        return;
-    }
+    defined $net and defined $bits or croak 'CIDR syntax error: use <address>/<netbits>';
     my $intnet = _dq2int($net) or return;
 	$self->_add($intnet,$bits,$val);
 }
@@ -158,7 +123,7 @@ sub add {
 
 Arguments: C<$range>, C<$value>
 
-Return Value: true for successful completion, C<undef> otherwise
+Return Value: none
 
 Adds VALUE to the tree for each address included in RANGE which must be a
 hyphenated range of IP addresses in dotted-quad format (e.g.
@@ -171,34 +136,20 @@ necessary (algorithm adapted from a script by Dr. Liviu Daia).
 sub add_range {
     my ($self, $range, $val) = @_;
 
-    unless(defined $val) {
-        $__PACKAGE__::errstr = "can't store an undef";
-        return;
-    }
+    defined $val or croak "can't store an undef";
 
-    my ($ip_start, $ip_end, $crud) = split /\s*-\s*/, $range;
-    if(defined $crud or not defined $ip_end) {
-        $__PACKAGE__::errstr = 'must have exactly one hyphen in range';
-        return;
-    }
+    my ($start, $end, $crud) = split /\s*-\s*/, $range;
+    croak 'must have exactly one hyphen in range'
+        if(defined $crud or not defined $end);
 
-    $ip_start = _dq2int($ip_start) or return;
-    $ip_end   = _dq2int($ip_end)   or return;
-    # This check will be repeated in add_num_range but we get more readable
-    # errors here
-    if($ip_start > $ip_end) {
-        $__PACKAGE__::errstr = "start > end in range `$range'";
-        return;
-    }
-
-    $self->add_num_range($ip_start, $ip_end, $val);
+    $self->add_num_range(_dq2int($start), _dq2int($end), $val);
 }
 
 =head2 add_num
 
 Arguments: C<$address>, C<$bits>, C<$value>
 
-Return Value: true for successful completion, C<undef> otherwise
+Return Value: none
 
 Like C<add()> but accepts address and bits as separate integer arguments
 instead of a string.
@@ -209,10 +160,7 @@ sub add_num { ## no critic (Subroutines::RequireArgUnpacking)
     # my ($self,$ip,$bits,$val) = @_;
 	# Just call the recursive adder for now but allow for changes in object
     # representation ($self != $n)
-    unless(defined $_[3]) {
-        $__PACKAGE__::errstr = "can't store an undef";
-        return;
-    }
+    defined $_[3] or croak "can't store an undef";
 	_add(@_);
 }
 
@@ -220,7 +168,7 @@ sub add_num { ## no critic (Subroutines::RequireArgUnpacking)
 
 Arguments: C<$start>, C<$end>, C<$value>
 
-Return Value: true for successful completion, C<undef> otherwise
+Return Value: none
 
 Like C<add_range()> but accepts addresses as separate integer arguments instead
 of a range string.
@@ -229,18 +177,13 @@ of a range string.
 
 sub add_num_range {
     my ($self, $start, $end, $val) = @_;
-
-    if($start > $end) {
-        $__PACKAGE__::errstr = "start > end in range $start--$end";
-        return;
-    }
-
     my @chunks;
+
+    $start > $end
+        and croak sprintf "start > end in range %s--%s", _int2dq($start), _int2dq($end);
+
     _do_chunk(\@chunks, $start, $end, 31, 0);
-    foreach(@chunks) {
-        $self->add_num(@$_, $val) or return;   # Immediately fail on first problem
-    }
-    1;
+    $self->add_num(@$_, $val) for(@chunks);
 }
 
 =head2 lookup
@@ -259,8 +202,7 @@ sub lookup {
 
     # Make sure there is no network spec tacked onto $addr
     $addr =~ s!/.*!!;
-	my $ip = _dq2int($addr) or return;
-	$self->_lookup($ip, 32);
+	$self->_lookup(_dq2int($addr));
 }
 
 
@@ -274,9 +216,9 @@ Like C<lookup()> but accepts the address in integer form.
 
 =cut
 
-sub lookup_num { _lookup(@_, 32) } ## no critic (Subroutines::RequireArgUnpacking)
+sub lookup_num { _lookup($_[0]) } ## no critic (Subroutines::RequireArgUnpacking)
 
-=head2 dump
+=head2 to_hash
 
 Arguments: none
 
@@ -287,7 +229,7 @@ addresses.
 
 =cut
 
-sub dump {  ## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub to_hash {
 	my ($self) = @_;
 	my %result;
 	$self->_walk(0, 0, sub {
@@ -322,7 +264,7 @@ The value associated with this block
 
 =back
 
-Return Value: nothing useful
+Return Value: none
 
 =cut
 
@@ -333,7 +275,7 @@ sub walk { $_[0]->_walk(0, 0, $_[1]) } ## no critic (Subroutines::RequireArgUnpa
 
 Arguments: none
 
-Return Value: nothing useful
+Return Value: none
 
 Remove all entries from the tree.
 
@@ -358,11 +300,6 @@ complicated than anything this class does so far, so it's not implemented.
 Storing an C<undef> value does not work and yields an error. This would be
 relatively easy to fix at the cost of some memory so that's more a design
 decision.
-
-=item *
-
-Using a package-global for error reporting was an incredibly stupid idea
-initially. This will change in the next version.
 
 =back
 
@@ -392,8 +329,7 @@ sub _add {
 
         if(__PACKAGE__ ne ref $node) {
             return 1 if($val eq $node); # Compatible entry (tried to add a subnet of one already in the tree)
-            $__PACKAGE__::errstr = "incompatible entry, found `$node' trying to add `$val'";
-            return;
+            croak "incompatible entry, found `$node' trying to add `$val'";
         }
         last DESCEND unless --$nbits;
         if(defined $node->[$bit]) {
@@ -406,23 +342,23 @@ sub _add {
         $node = $node->[$bit];
     }
     
-    if($checksub and __PACKAGE__ eq ref $node->[$bit]) {
-        _add_check_subtree($node->[$bit], $val) or return;
-    }
+    $checksub
+        and defined $node->[$bit]
+        and __PACKAGE__ eq ref $node->[$bit]
+        and _add_check_subtree($node->[$bit], $val);
 
     $node->[$bit] = $val;
 
     # Take care of potential mergers into the previous node (if $node[0] == $node[1])
-    if(not @node_stack and defined $node->[$bit ^ 1] and $node->[$bit ^ 1] eq $val) {
-        $__PACKAGE__::errstr = 'merging two /1 blocks is not supported yet';
-        return;
-    }
+    not @node_stack
+        and defined $node->[$bit ^ 1]
+        and $node->[$bit ^ 1] eq $val
+        and croak 'merging two /1 blocks is not supported yet';
     while(1) {
         $node = pop @node_stack // last;
         last unless(defined $$node->[0] and defined $$node->[1] and $$node->[0] eq $$node->[1]);
         $$node = $val;
     }
-    1;
 }
 
 # Check an existing subtree for incompatible values. Returns false and sets the
@@ -438,10 +374,7 @@ sub _add_check_subtree {
         );
         1;
     } or do {
-        if($@) {
-            $__PACKAGE__::errstr = "incompatible entry, found `$@' trying to add `$val'";
-            return;
-        }
+        $@ and croak "incompatible entry, found `$@' trying to add `$val'";
     };
     return 1;
 }
@@ -462,19 +395,14 @@ sub _lookup {
 # Dotted-quad to integer
 sub _dq2int { ## no critic (Subroutines::RequireArgUnpacking)
 	my @oct = split /\./, $_[0];
-	unless(4 == @oct) {
-        $__PACKAGE__::errstr = "address must be in dotted-quad form, is `$_[0]'";
-        return;
-    }
+	4 == @oct or croak "address must be in dotted-quad form, is `$_[0]'";
 	my $ip = 0;
     foreach(@oct) {
-        if($_ > 255 or $_ < 0) {
-            $__PACKAGE__::errstr = "invalid component `$_' in address `$_[0]'";
-            return;
-        }
+        $_ <= 255 and $_ >= 0
+            or croak "invalid component `$_' in address `$_[0]'";
         $ip = $ip<<8 | $_;
     }
-	$ip;
+	return $ip;
 }
 
 # Convert an IP address in integer format to dotted-quad
