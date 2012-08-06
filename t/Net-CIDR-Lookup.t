@@ -2,8 +2,6 @@
 
 use strict;
 use warnings;
-use Test::Class;
-use lib 't/lib';
-use Net::CIDR::Lookup::Test;
+use Test::Class::Load 't/lib';
 Test::Class->runtests;
 
