@@ -1,4 +1,3 @@
-Changes
 lib/Net/CIDR/Lookup.pm
 lib/Net/CIDR/Lookup/Changes.pod
 lib/Net/CIDR/Lookup/IPv6.pm
