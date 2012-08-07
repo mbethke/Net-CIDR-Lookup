@@ -10,12 +10,10 @@ META.yml			Module meta-data (added by MakeMaker)
 README
 t/00-load.t
 t/boilerplate.t
-t/CIDR.t
+t/lib/My/Test/Class.pm
 t/lib/Net/CIDR/Lookup/IPv6/Test.pm
 t/lib/Net/CIDR/Lookup/Test.pm
 t/lib/Net/CIDR/Lookup/Tie/Test.pm
-t/Net-CIDR-Lookup-IPv6.t
-t/Net-CIDR-Lookup-Tie.t
 t/Net-CIDR-Lookup.t
 t/pod-coverage.t
 t/pod.t
