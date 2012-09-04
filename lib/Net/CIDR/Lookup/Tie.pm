@@ -4,11 +4,11 @@ Net::CIDR::Lookup::Tie
 
 =head1 DESCRIPTION
 
-This is a L<Tie::Hash> interface to L<Net::CIDR::Lookup>, see there for
+This is a L<Tie::Hash|Tie::Hash> interface to L<Net::CIDR::Lookup|Net::CIDR::Lookup>, see there for
 details.
 
 The tied hash accepts net blocks as keys in the same syntax as
-C<Net::CIDR::Lookup->add()> or C<add_range()> and stores arbitrary (with the
+C<Net::CIDR::Lookup>'s C<add()> or C<add_range()> and stores arbitrary (with the
 exception of C<undef>) scalar values under these. The same coalescing as in
 C<Net::CIDR::Lookup> takes place, so if you add any number of different keys
 you may end up with a hash containing I<less> keys if any mergers took place.

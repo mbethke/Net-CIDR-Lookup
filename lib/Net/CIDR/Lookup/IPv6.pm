@@ -4,18 +4,31 @@ Net::CIDR::Lookup::IPv6
 
 =head1 DESCRIPTION
 
-This is the IPv6 version of L<Net::CIDR::Lookup>. It generally provides the
+This is the IPv6 version of L<Net::CIDR::Lookup|Net::CIDR::Lookup>. It generally provides the
 same methods, with the distinction that the C<add_num>/C<add_num_range> methods
 that accept an IPv4 address as an integer have been split in two to accommodate
 different representations for an IPv6 address:
 
 =over 1
 
-=item * C<add_vec>/C<add_vec_range> accepts a 128-bit L<Bit::Vector> object for an address
+=item * C<add_vec>/C<add_vec_range> accepts a 128-bit L<Bit::Vector|Bit::Vector> object for an address
 
 =item * C<add_str>/C<add_str_range> takes a packed string as returned by C<Socket::unpack_sockaddr_in6>
 
 =back
+
+For all other methods, see L<Net::CIDR::Lookup|the v4 version>.
+
+This module requires an IPv6-enabled L<Socket|Socket.pm>. As there is no way to ask for this using ExtUtils::MakeMaker, do make sure you have it.
+
+=cut
+
+#=head1 SYNOPSIS
+# TODO flesh this out
+#
+#  use Net::CIDR::Lookup::IPv6;
+#
+#  $cidr = Net::CIDR::Lookup::IPv6->new;
 
 =head1 VERSION HISTORY
 
@@ -281,7 +294,7 @@ Licensed unter the Artistic License 2.0
 
 =head1 SEE ALSO
 
-This module's methods are based even more loosely than those of L<Net::CIDR::Lookup> on those of L<Net::CIDR::Lite>
+This module's methods are based even more loosely on L<Net::CIDR::Lite|Net::CIDR::Lite> than those of L<Net::CIDR::Lookup|Net::CIDR::Lookup>.
 
 =cut
 
