@@ -408,11 +408,10 @@ sub _int2dq { inet_ntop(AF_INET, pack 'N', shift) }
 sub _walk {
 	my ($node, $addr, $bits, $cb) = @_;
 	my ($l, $r);
-    my @node_stack = ($addr, $bits, $node);
+    my @node_stack = ($node, $addr, $bits);
     #print "================== WALK ==================: ", join(':',caller),"\n"; 
-    while(defined($node = pop @node_stack)) {
-        $bits = pop @node_stack;
-        $addr = pop @node_stack;
+    while(@node_stack) {
+        ($node, $addr, $bits) = splice @node_stack, -3; # pop 3 elems
         #print "LOOP: stack size ".(@node_stack/3)."\n";
         if(__PACKAGE__ eq ref $node) {
             ($l, $r) = @$node;
@@ -426,9 +425,9 @@ sub _walk {
             #$addr &= ~(1 << 31-$bits);
             if(__PACKAGE__ eq ref $l) {
                 #defined $r and print "L: pushing right node=$r, bits=$bits\n";
-                defined $r and push @node_stack, ($addr | 1 << 32-$bits, $bits, $r);
+                defined $r and push @node_stack, ($r, $addr | 1 << 32-$bits, $bits);
                 #print "L: pushing left  node=$l, bits=$bits\n";
-                push @node_stack, ($addr, $bits, $l);
+                push @node_stack, ($l, $addr, $bits);
                 #printf "L: addr=%032b (%s)\n", $addr, _int2dq($addr);
                 next; # Short-circuit back to loop w/o checking $r!
             } else {
@@ -446,7 +445,7 @@ sub _walk {
         $addr |= 1 << 32-$bits;
         if(__PACKAGE__ eq ref $r) {
             #print "R: pushing right node=$r, bits=$bits\n";
-            push @node_stack, ($addr, $bits, $r);
+            push @node_stack, ($r, $addr, $bits);
             #printf "R: addr=%032b (%s)\n", $addr, _int2dq($addr);
         } else {
             #defined $r and printf "R: CALLBACK (%s/%d) => %s\n", _int2dq($addr), $bits, $r;
