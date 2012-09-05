@@ -393,27 +393,34 @@ sub _addr2print { inet_ntop(AF_INET6, pack('N4', reverse $_[0]->Chunk_List_Read(
 # Walk the tree in depth-first LTR order
 sub _walk {
 	my ($node, $addr, $bits, $cb) = @_;
-	my ($l, $r);
-    my @node_stack = ($bits, $node);
+	my ($l, $r, $rightflag);
+    my @node_stack = ($node, 0, $bits);
     #print "================== WALK ==================: ", join(':',caller),"\n"; 
-    while(defined($node = pop @node_stack)) {
-        $bits    = pop @node_stack;
+    while(@node_stack) {
+        ($node, $rightflag, $bits) = splice @node_stack, -3; # pop 3 elems 
         #print "LOOP: stack size ".@node_stack."\n";
+
+        $addr->Bit_On(128-$bits) if $rightflag;
+
         if(__PACKAGE__ eq ref $node) {
             ($l, $r) = @$node;
-            #printf "Popped l=%s r=%s, bits=%d\n", ($l//'<undef>'), ($r//'<undef>'), $bits;
+            #printf "Popped [%s, %s]:%s/%d\n",
+            #    ($l//'') =~ /^Net::CIDR::Lookup::IPv6=/ ? '<node>' : $l//'<undef>',
+            #    ($r//'') =~ /^Net::CIDR::Lookup::IPv6=/ ? '<node>' : $r//'<undef>',
+            #    _addr2print($addr), $bits;
             ++$bits;
 
             # Check left side
             $addr->Bit_Off(128 - $bits);
             if(__PACKAGE__ eq ref $l) {
-                #print "L: pushing node=$l, bits=$bits\n";
-                defined $r and push @node_stack, ($bits, $r);
-                push @node_stack, ($bits, $l);
-                #printf "L: addr=%032b (%s)\n", $addr, _int2dq($addr);
+                #defined $r and print "L: pushing right node=$r, bits=$bits\n";
+                defined $r and push @node_stack, ($r, 1, $bits);
+                #defined $r and print "L: pushing left  node=$l, bits=$bits\n";
+                push @node_stack, ($l, 0, $bits);
+                #printf "L: addr=%032b (%s)\n", $addr, _addr2print($addr);
                 next; # Short-circuit back to loop w/o checking $r!
             } else {
-                #defined $l and printf "L: CALLBACK (%s/%d) => %s\n", _int2dq($addr), $bits, $l;
+                #defined $l and printf "L: CALLBACK (%s/%d) => %s\n", _addr2print($addr), $bits, $l;
                 defined $l and $cb->($addr, $bits, $l);
             }
         } else {
@@ -426,11 +433,11 @@ sub _walk {
         # Check right side
         $addr->Bit_On(128 - $bits);
         if(__PACKAGE__ eq ref $r) {
-            #print "R: pushing node=$r, bits=$bits\n";
-            push @node_stack, ($bits, $r);
+            #print "R: pushing right node=$r, bits=$bits\n";
+            push @node_stack, ($r, 1, $bits);
             #printf "R: addr=%032b (%s)\n", $addr, _addr2print($addr);
         } else {
-            #defined $r and printf "R: CALLBACK (%s/%d) => %s\n", _addr2prin($addr | 1 << 32-$bits), $bits, $r;
+            #defined $r and printf "R: CALLBACK (%s/%d) => %s\n", _addr2print($addr), $bits, $r;
             defined $r and $cb->($addr, $bits, $r);
         }
     }

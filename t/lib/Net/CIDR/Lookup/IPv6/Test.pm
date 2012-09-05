@@ -73,5 +73,14 @@ sub lookups : Tests(6) {
     }
 }
 
+sub to_hash : Tests(3) {
+    my $t = shift->{tree};
+    $t->add_range('7::31.201.1.36-7::31.201.1.39',   1); # 31.201.1.36/30
+    $t->add_range('8::32.105.59.0-8::32.105.59.255', 1); # 32.105.59.0/24
+    my $h = $t->to_hash;
+    ok((defined $h->{'7::1fc9:124/126'} and defined $h->{'8::2069:3b24/120'}), 'to_hash(): correct keys');
+    ok((1 == $h->{'7::1fc9:124/126'} and 1 == $h->{'8::2069:3b24/120'}), 'to_hash(): correct values');
+    ok(2 == keys %$h, 'to_hash(): no spurious keys');
+}
 
 1;
