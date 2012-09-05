@@ -395,21 +395,11 @@ sub _lookup {
     }
 }
 
-# Dotted-quad to integer
-sub _dq2int { ## no critic (Subroutines::RequireArgUnpacking)
-	my @oct = split /\./, $_[0];
-	4 == @oct or croak "address must be in dotted-quad form, is `$_[0]'";
-	my $ip = 0;
-    foreach(@oct) {
-        $_ <= 255 and $_ >= 0
-            or croak "invalid component `$_' in address `$_[0]'";
-        $ip = $ip<<8 | $_;
-    }
-	return $ip;
-}
+# IPv4 address from dotted-quad to integer
+sub _dq2int { unpack 'N', inet_pton(AF_INET, shift) }
 
-# Convert an IP address in integer format to dotted-quad
-sub _int2dq { join '.', unpack 'C*', pack 'N', shift }
+# IPv4 address from integer to dotted-quad
+sub _int2dq { inet_ntop(AF_INET, pack 'N', shift) }
 
 # Convert a CIDR block ($addr, $bits) into a range of addresses ($lo, $hi)
 # sub _cidr2rng { ( $_[0], $_[0] | ((1 << $_[1]) - 1) ) }

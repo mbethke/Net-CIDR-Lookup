@@ -382,11 +382,8 @@ sub _str2vec {   ## no critic (Subroutines::RequireArgUnpacking)
 
 # Parse an IPv6 address and return a Bit::Vector object
 sub _parse_address {   ## no critic (Subroutines::RequireArgUnpacking)
-    my ($err, @result) = getaddrinfo($_[0], 0);
-    $err and croak "Error parsing address ($_[0]): $err";
-    # Some of this could be replaced by _str2vec but isn't for speed
     my $b = Bit::Vector->new(128);
-    $b->Chunk_List_Store(32, reverse unpack 'N4', (unpack_sockaddr_in6 $result[0]{addr})[1]);
+    $b->Chunk_List_Store(32, reverse unpack 'N4', inet_pton(AF_INET6, shift));
     return $b;
 }
 
