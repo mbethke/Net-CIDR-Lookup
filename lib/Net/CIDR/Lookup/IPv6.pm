@@ -198,7 +198,7 @@ Like C<lookup()> but accepts the address as a Bit::Vector object.
 
 =cut
 
-sub lookup_vec { _lookup($_[0], $_[1]->Clone) }   ## no critic (Subroutines::RequireArgUnpacking)
+sub lookup_vec { shift->_lookup($_[0]->Clone) }   ## no critic (Subroutines::RequireArgUnpacking)
 
 =head2 lookup_str
 
@@ -211,7 +211,7 @@ C<Socket::unpack_sockaddr_in6>.
 
 =cut
 
-sub lookup_str { _lookup(_str2vec($_[0])) }   ## no critic (Subroutines::RequireArgUnpacking)
+sub lookup_str { shift->_lookup(_str2vec($_[0])) }   ## no critic (Subroutines::RequireArgUnpacking)
 
 =head2 to_hash
 

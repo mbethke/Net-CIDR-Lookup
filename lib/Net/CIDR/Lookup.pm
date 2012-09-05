@@ -216,7 +216,7 @@ Like C<lookup()> but accepts the address in integer form.
 
 =cut
 
-sub lookup_num { _lookup($_[0]) } ## no critic (Subroutines::RequireArgUnpacking)
+sub lookup_num { shift->_lookup($_[0]) } ## no critic (Subroutines::RequireArgUnpacking)
 
 =head2 to_hash
 

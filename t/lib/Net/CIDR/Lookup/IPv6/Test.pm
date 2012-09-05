@@ -5,6 +5,8 @@ use warnings;
 use parent 'My::Test::Class';
 use Test::More;
 use Test::Exception;
+use Bit::Vector;
+use Socket qw/ getaddrinfo unpack_sockaddr_in6 inet_ntop AF_INET6 /;
 
 #-------------------------------------------------------------------------------
 
@@ -50,5 +52,26 @@ sub add_range : Tests(4) {
     my $h = $t->to_hash;
     is(scalar keys %$h, 39, 'Range expansion: number of keys');
 }
+
+sub lookups : Tests(6) {
+    my $t = shift->{tree};
+    $t->add_range('2001:db8::-2003:db8::abc', 42);
+    $t->add_range('1::1234 - 1::1:2345', 23);
+    
+    for([ '2002:cb8::abc' => 42 ],
+        [ '1::ffff'       => 23 ],
+        [ 'f::'           => undef ]
+    ) {
+        my ($err, @result) = getaddrinfo($_->[0], 0);
+
+        my $str = (unpack_sockaddr_in6($result[0]{addr}))[1];
+        my $vec = Bit::Vector->new(128);
+        $vec->Chunk_List_Store(32, reverse unpack 'N4', $str);
+
+        is($t->lookup_str($str), $_->[1], "lookup_str($_->[0]) OK");
+        is($t->lookup_vec($vec), $_->[1], "lookup_vec($_->[0]) OK");
+    }
+}
+
 
 1;

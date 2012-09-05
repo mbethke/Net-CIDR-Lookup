@@ -5,7 +5,7 @@ use warnings;
 use parent 'My::Test::Class';
 use Test::More;
 use Test::Exception;
-
+use Socket qw/ inet_aton /;
 #-------------------------------------------------------------------------------
 
 sub check_methods : Test(startup => 8) {
@@ -34,6 +34,14 @@ sub add : Tests(3) {
     is($t->lookup('192.168.0.161'), 42, 'Block 192.168.0.129/25 lookup OK');
     is($t->lookup('1.3.123.234'), 23, 'Block 1.2.0.0/15 lookup OK');
     is($t->lookup('2.3.4.5'), undef, 'No result outside blocks');
+}
+
+sub lookup_num : Tests(2) {
+    my $t = shift->{tree};
+    $t->add('192.168.0.129/25', 42);
+    $t->add('1.2.0.0/15', 23);
+    is($t->lookup_num(_dq2int('192.168.0.130')), 42, 'lookup_num() found in range');
+    is($t->lookup_num(_dq2int('192.188.0.1')), undef, 'lookup_num() not found outside');
 }
 
 sub add_range : Tests(4) {
@@ -139,6 +147,9 @@ sub clear : Tests(1) {
     $t->clear;
     is(scalar keys %{$t->to_hash}, 0, 'Reinitialized tree');
 }
+
+#-------------------------------------------------------------------------------
+sub _dq2int { unpack "N", inet_aton($_[0]) }
 
 1;
 
