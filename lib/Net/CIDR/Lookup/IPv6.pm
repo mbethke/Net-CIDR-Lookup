@@ -42,11 +42,12 @@ package Net::CIDR::Lookup::IPv6;
 use strict;
 use warnings;
 use Carp;
-use Socket qw/ getaddrinfo unpack_sockaddr_in6 inet_ntop AF_INET6 /;
+$Carp::Verbose=1;
+use Socket qw/ inet_ntop inet_pton AF_INET6 /;
 use Bit::Vector;
 use parent 'Net::CIDR::Lookup';
 
-our $VERSION = '0.5';
+our $VERSION = '0.51';
 
 =head2 add
 

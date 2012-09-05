@@ -86,8 +86,9 @@ use strict;
 use warnings;
 use integer;
 use Carp;
+use Socket qw/ inet_ntop inet_pton AF_INET /;
 
-our $VERSION = '0.5';
+our $VERSION = '0.51';
 
 =head2 new
 
