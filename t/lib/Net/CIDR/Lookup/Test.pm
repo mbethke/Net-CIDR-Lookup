@@ -141,6 +141,16 @@ sub superrange2 : Tests(2) {
     is($h->{'192.168.160.0/20'}, 1, 'Big superrange: got correct block');
 }
 
+sub to_hash : Tests(3) {
+    my $t = shift->{tree};
+    $t->add_range('31.201.1.36-31.201.1.39',   1); # 31.201.1.36/30
+    $t->add_range('32.105.59.0-32.105.59.255', 1); # 32.105.59.0/24
+    my $h = $t->to_hash;
+    ok((defined $h->{'31.201.1.36/30'} and defined $h->{'32.105.59.0/24'}), 'to_hash(): correct keys');
+    ok((1 == $h->{'31.201.1.36/30'} and 1 == $h->{'32.105.59.0/24'}), 'to_hash(): correct values');
+    ok(2 == keys %$h, 'to_hash(): no spurious keys');
+}
+
 sub clear : Tests(1) {
     my $t = shift->{tree};
     $t->add('192.168.0.129/25', 42);

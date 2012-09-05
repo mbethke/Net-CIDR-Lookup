@@ -26,14 +26,15 @@ Since V0.5, errors are signalled by an exception so method calls should generall
   use Net::CIDR::Lookup;
 
   $cidr = Net::CIDR::Lookup->new;
-  $cidr->add("192.168.42.0/24",1);    # Add first network, value 1
-  $cidr->add_num(167772448,27,2);     # 10.0.1.32/27 => 2
-  $cidr->add("192.168.43.0/24",1);    # Automatic coalescing to a /23
-  $cidr->add("192.168.41.0/24",2);    # Stays separate due to different value
-  $cidr->add("192.168.42.128/25",2);  # Error: overlaps with different value
+  $cidr->add("192.168.42.0/24",1);     # Add first network, value 1
+  $cidr->add_num(167772448,27,2);      # 10.0.1.32/27 => 2
+  $cidr->add("192.168.43.0/24",1);     # Automatic coalescing to a /23
+  $cidr->add("192.168.41.0/24",2);     # Stays separate due to different value
+  $cidr->add("192.168.42.128/25",2);   # Error: overlaps with different value
 
-  $h = $cidr->to_hash;                   # Convert tree to a hash
+  $val = $h->lookup("192.168.41.123"); # => 2
 
+  $h = $cidr->to_hash;                 # Convert tree to a hash
   print "$k => $v\n" while(($k,$v) = each %$h);
 
   # Output (order may vary):
@@ -53,7 +54,8 @@ Since V0.5, errors are signalled by an exception so method calls should generall
   # 192.168.42.0/23 => 1
 
   $cidr->clear;                                 # Remove all entries
-  $cidr->add_range('1.2.3.11 - 1.2.4.234', 42); # Add a range of addresses, automatically split into CIDR blocks
+  $cidr->add_range('1.2.3.11 - 1.2.4.234', 42); # Add a range of addresses,
+                                                # automatically split into CIDR blocks
   $h = $cidr->to_hash;
   print "$k => $v\n" while(($k,$v) = each %$h);
 
@@ -82,6 +84,7 @@ See L<Net::CIDR::Lookup::Changes>
 package Net::CIDR::Lookup;
 use strict;
 use warnings;
+use integer;
 use Carp;
 
 our $VERSION = '0.5';
@@ -241,7 +244,7 @@ sub to_hash {
             }
         }
     );
-	\%result;
+	return \%result;
 }
 
 =head2 walk
@@ -415,21 +418,27 @@ sub _int2dq { join '.', unpack 'C*', pack 'N', shift }
 sub _walk {
 	my ($node, $addr, $bits, $cb) = @_;
 	my ($l, $r);
-    my @node_stack = ($bits, $node);
+    my @node_stack = ($addr, $bits, $node);
     #print "================== WALK ==================: ", join(':',caller),"\n"; 
     while(defined($node = pop @node_stack)) {
-        $bits    = pop @node_stack;
-        #print "LOOP: stack size ".@node_stack."\n";
+        $bits = pop @node_stack;
+        $addr = pop @node_stack;
+        #print "LOOP: stack size ".(@node_stack/3)."\n";
         if(__PACKAGE__ eq ref $node) {
             ($l, $r) = @$node;
-            #printf "Popped l=%s r=%s, bits=%d\n", ($l//'<undef>'), ($r//'<undef>'), $bits;
+            #printf "Popped [%s, %s]:%s/%d\n",
+            #    ($l//'') =~ /^Net::CIDR::Lookup=/ ? '<node>' : $l//'<undef>',
+            #    ($r//'') =~ /^Net::CIDR::Lookup=/ ? '<node>' : $r//'<undef>',
+            #    _int2dq($addr), $bits;
             ++$bits;
 
             # Check left side
+            #$addr &= ~(1 << 31-$bits);
             if(__PACKAGE__ eq ref $l) {
-                #print "L: pushing node=$l, bits=$bits\n";
-                defined $r and push @node_stack, ($bits, $r);
-                push @node_stack, ($bits, $l);
+                #defined $r and print "L: pushing right node=$r, bits=$bits\n";
+                defined $r and push @node_stack, ($addr | 1 << 32-$bits, $bits, $r);
+                #print "L: pushing left  node=$l, bits=$bits\n";
+                push @node_stack, ($addr, $bits, $l);
                 #printf "L: addr=%032b (%s)\n", $addr, _int2dq($addr);
                 next; # Short-circuit back to loop w/o checking $r!
             } else {
@@ -444,14 +453,14 @@ sub _walk {
         }
 
         # Check right side
+        $addr |= 1 << 32-$bits;
         if(__PACKAGE__ eq ref $r) {
-            #print "R: pushing node=$r, bits=$bits\n";
-            push @node_stack, ($bits, $r);
-            $addr |= 1 << 32-$bits;
+            #print "R: pushing right node=$r, bits=$bits\n";
+            push @node_stack, ($addr, $bits, $r);
             #printf "R: addr=%032b (%s)\n", $addr, _int2dq($addr);
         } else {
-            #defined $r and printf "R: CALLBACK (%s/%d) => %s\n", _int2dq($addr | 1 << 32-$bits), $bits, $r;
-            defined $r and $cb->($addr | 1 << 32-$bits, $bits, $r);
+            #defined $r and printf "R: CALLBACK (%s/%d) => %s\n", _int2dq($addr), $bits, $r;
+            defined $r and $cb->($addr, $bits, $r);
         }
     }
 }
