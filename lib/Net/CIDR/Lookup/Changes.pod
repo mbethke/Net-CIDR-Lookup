@@ -2,6 +2,16 @@
 
 =over 1
 
+=item V0.51
+
+=over 1
+
+=item * Fixed C<to_hash()> that the change to iterative tree walking had broken. Yes, there are test for it, too now.
+
+=item * Dropped the redundant address parsing/printing code in favor of L<Socket|Socket> functions.
+
+=back
+
 =item V0.5
 
 B<Attention: Breaking Changes!>

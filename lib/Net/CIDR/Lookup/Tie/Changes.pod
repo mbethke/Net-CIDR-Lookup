@@ -2,6 +2,14 @@
 
 =over 1
 
+=item V0.51
+
+=over 1
+
+=item * No functional changes from V0.5
+
+=back
+
 =item V0.5
 
 =over 1
