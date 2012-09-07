@@ -12,6 +12,7 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
+        'parent'      => 0,
         'Bit::Vector' => 0,
         'Socket'      => 1.94,
     },
