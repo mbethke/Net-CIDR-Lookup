@@ -6,7 +6,7 @@ use parent 'My::Test::Class';
 use Test::More;
 use Test::Exception;
 use Bit::Vector;
-use Socket qw/ getaddrinfo unpack_sockaddr_in6 inet_ntop AF_INET6 /;
+use Socket qw/ inet_pton inet_ntop AF_INET6 /;
 
 #-------------------------------------------------------------------------------
 
@@ -62,9 +62,7 @@ sub lookups : Tests(6) {
         [ '1::ffff'       => 23 ],
         [ 'f::'           => undef ]
     ) {
-        my ($err, @result) = getaddrinfo($_->[0], 0);
-
-        my $str = (unpack_sockaddr_in6($result[0]{addr}))[1];
+        my $str = inet_pton(AF_INET6, $_->[0]);
         my $vec = Bit::Vector->new(128);
         $vec->Chunk_List_Store(32, reverse unpack 'N4', $str);
 
