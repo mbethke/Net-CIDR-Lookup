@@ -6,9 +6,9 @@
 
 =over 1
 
-=item * Fixed C<to_hash()> that the change to iterative tree walking had broken. Same bug as in IPv4 version.
+=item Fixed C<to_hash()> that the change to iterative tree walking had broken. Same bug as in IPv4 version.
 
-=item * Changed address parsing from C<getaddrinfo()> to the simpler C<inet_pton()>. This should also fix the problems on some systems (mostly BSDs and Solaris) where passing a zero port number caused the call to fail.
+=item Changed address parsing from C<getaddrinfo()> to the simpler C<inet_pton()>. This should also fix the problems on some systems (mostly BSDs and Solaris) where passing a zero port number caused the call to fail.
 
 =back
 
@@ -18,12 +18,12 @@
 
 =item B<Attention: Breaking Change!> C<dump> is called more sensibly C<to_hash> now.
 
-=item * Replaced the recursive implementations of C<lookup()> and C<walk()> with
+=item Replaced the recursive implementations of C<lookup()> and C<walk()> with
 iterative ones for about a 30% speed increase.
 
-=item * Fixed C<lookup_vec()>
+=item Fixed C<lookup_vec()>
 
-=item * Moved version history to its own POD file
+=item Moved version history to its own POD file
 
 =back
 

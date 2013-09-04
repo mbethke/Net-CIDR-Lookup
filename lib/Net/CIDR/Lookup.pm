@@ -8,13 +8,13 @@ This class implements a lookup table indexed by IPv4 networks or hosts.
 
 =over 1
 
-=item * Addresses are accepted in numeric form (integer with separate netbits argument),
+=item Addresses are accepted in numeric form (integer with separate netbits argument),
 as strings in CIDR notation or as IP address ranges
 
-=item * Overlapping or adjacent networks are automatically coalesced if their
+=item Overlapping or adjacent networks are automatically coalesced if their
 associated values are equal.
 
-=item * The table is implemented as a binary tree so lookup and insertion take O(log n)
+=item The table is implemented as a binary tree so lookup and insertion take O(log n)
 time.
 
 =back
@@ -83,7 +83,7 @@ See L<Net::CIDR::Lookup::Changes>
 
 package Net::CIDR::Lookup;
 use strict;
-use warnings;
+use 5.010001;
 use integer;
 use Carp;
 use Socket qw/ inet_ntop inet_pton AF_INET /;
@@ -294,12 +294,12 @@ sub clear {
 
 =over 1
 
-=item *
+=item
 
 I didn't need deletions yet and deleting parts of a CIDR block is a bit more
 complicated than anything this class does so far, so it's not implemented.
 
-=item *
+=item
 
 Storing an C<undef> value does not work and yields an error. This would be
 relatively easy to fix at the cost of some memory so that's more a design

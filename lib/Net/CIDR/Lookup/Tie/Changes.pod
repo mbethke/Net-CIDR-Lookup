@@ -6,7 +6,7 @@
 
 =over 1
 
-=item * No functional changes from V0.5
+=item No functional changes from V0.5
 
 =back
 
@@ -14,12 +14,12 @@
 
 =over 1
 
-=item * B<Attention: Breaking Change!>
+=item B<Attention: Breaking Change!>
 
 Due to new L<Net::CIDR::Lookup> API, innocuous-looking store/retrie
 operations may now cause exceptions!
 
-=item * Moved version history to its own POD file
+=item Moved version history to its own POD file
 
 =back
 

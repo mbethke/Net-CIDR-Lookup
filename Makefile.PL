@@ -7,10 +7,9 @@ WriteMakefile(
     AUTHOR              => 'Matthias Bethke <matthias@towiski.de>',
     VERSION_FROM        => 'lib/Net/CIDR/Lookup.pm',
 	ABSTRACT            => 'Hash-like lookup table based on CIDR blocks',
-    ($ExtUtils::MakeMaker::VERSION >= 6.3002
-      ? ('LICENSE'=> 'perl')
-      : ()),
+    ($ExtUtils::MakeMaker::VERSION >= 6.3002 ? ('LICENSE'=> 'perl') : ()),
     PL_FILES            => {},
+    MIN_PERL_VERSION    => 5.010001,
     PREREQ_PM => {
         'parent'      => 0,
         'Bit::Vector' => 0,

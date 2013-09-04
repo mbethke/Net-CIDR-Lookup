@@ -11,9 +11,9 @@ different representations for an IPv6 address:
 
 =over 1
 
-=item * C<add_vec>/C<add_vec_range> accepts a 128-bit L<Bit::Vector|Bit::Vector> object for an address
+=item C<add_vec>/C<add_vec_range> accepts a 128-bit L<Bit::Vector|Bit::Vector> object for an address
 
-=item * C<add_str>/C<add_str_range> takes a packed string as returned by C<Socket::unpack_sockaddr_in6>
+=item C<add_str>/C<add_str_range> takes a packed string as returned by C<Socket::unpack_sockaddr_in6>
 
 =back
 
@@ -271,17 +271,17 @@ sub walk { $_[0]->_walk(Bit::Vector->new(128), 0, $_[1]) }   ## no critic (Subro
 
 =over 1
 
-=item * The IPv6 version hasn't seen any real-world testing and the unit tests
+=item The IPv6 version hasn't seen any real-world testing and the unit tests
 are still rather scarce, so there will probably be more bugs than listed here.
 
-=item * I didn't need deletions yet and deleting parts of a CIDR block is a bit more
+=item I didn't need deletions yet and deleting parts of a CIDR block is a bit more
 complicated than anything this class does so far, so it's not implemented.
 
-=item * Storing an C<undef> value does not work and yields an error. This would be
+=item Storing an C<undef> value does not work and yields an error. This would be
 relatively easy to fix at the cost of some memory so that's more a design
 decision.
 
-=item * A consequence of the same design is also that a /0 block can't be formed.
+=item A consequence of the same design is also that a /0 block can't be formed.
 Although it doesn't make much sense, this might happen if your input is that
 weird.
 
