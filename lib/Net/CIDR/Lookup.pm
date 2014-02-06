@@ -397,7 +397,22 @@ sub _lookup {
 }
 
 # IPv4 address from dotted-quad to integer
-sub _dq2int { unpack 'N', inet_pton(AF_INET, shift) }
+# Choose manual implementation on Windows where inet_pton() is not available
+if('MSWin32' eq $^O) {
+    sub _dq2int { ## no critic (Subroutines::RequireArgUnpacking)
+        my @oct = split /\./, $_[0];
+        4 == @oct or croak "address must be in dotted-quad form, is `$_[0]'";
+        my $ip = 0;
+        foreach(@oct) {
+            $_ <= 255 and $_ >= 0
+                or croak "invalid component `$_' in address `$_[0]'";
+            $ip = $ip<<8 | $_;
+        }
+        return $ip;
+    }
+} else {
+    sub _dq2int { unpack 'N', inet_pton(AF_INET, shift) }
+}
 
 # IPv4 address from integer to dotted-quad
 sub _int2dq { inet_ntop(AF_INET, pack 'N', shift) }
