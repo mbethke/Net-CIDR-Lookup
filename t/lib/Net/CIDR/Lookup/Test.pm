@@ -3,6 +3,7 @@ package Net::CIDR::Lookup::Test;
 use strict;
 use warnings;
 use parent 'My::Test::Class';
+use Carp;
 use Test::More;
 use Test::Exception;
 use Socket qw/ inet_aton /;
@@ -10,14 +11,14 @@ use Socket qw/ inet_aton /;
 
 sub check_methods : Test(startup => 8) {
     my $t = shift->class->new;
-    can_ok($t,'add');
-    can_ok($t,'add_num');
-    can_ok($t,'add_range');
-    can_ok($t,'lookup');
-    can_ok($t,'lookup_num');
-    can_ok($t,'clear');
-    can_ok($t,'to_hash');
-    can_ok($t,'walk');
+    can_ok($t, 'add');
+    can_ok($t, 'add_num');
+    can_ok($t, 'add_range');
+    can_ok($t, 'lookup');
+    can_ok($t, 'lookup_num');
+    can_ok($t, 'clear');
+    can_ok($t, 'to_hash');
+    can_ok($t, 'walk');
 }
 
 sub before : Test(setup) {
@@ -159,7 +160,18 @@ sub clear : Tests(1) {
 }
 
 #-------------------------------------------------------------------------------
-sub _dq2int { unpack "N", inet_aton($_[0]) }
+# Duplicated here so we don't depend on the check in Lookup.pm
+sub _dq2int { ## no critic (Subroutines::RequireArgUnpacking)
+    my @oct = split /\./, $_[0];
+    4 == @oct or croak "address must be in dotted-quad form, is `$_[0]'";
+    my $ip = 0;
+    foreach(@oct) {
+        $_ <= 255 and $_ >= 0
+            or croak "invalid component `$_' in address `$_[0]'";
+        $ip = $ip<<8 | $_;
+    }
+    return $ip;
+}
 
 1;
 
