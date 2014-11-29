@@ -88,7 +88,7 @@ use integer;
 use Carp;
 use Socket qw/ inet_ntop inet_pton AF_INET /;
 
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 
 BEGIN {
 # IPv4 address from dotted-quad to integer
@@ -348,7 +348,7 @@ sub _add {
 
     DESCEND:
     while(1) {
-	    $bit = ($addr & 0x80000000) >> 31;
+	    $bit = $addr & 0x80000000 ? 1 : 0;
         $addr <<= 1;
 
         if(__PACKAGE__ ne ref $node) {

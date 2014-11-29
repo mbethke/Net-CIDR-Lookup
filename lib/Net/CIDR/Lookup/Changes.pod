@@ -2,11 +2,23 @@
 
 =over 1
 
+=item V0.52
+
+=over 1
+
+=item Fixed a long-standing bug on pure 32-bit perls (i.e. on 32-bit systems
+that don't use Perl's software support for 64-bit integers) that would cause
+"Modification of non-creatable array value attempted" errors.
+Counterintutitively, the ternary operator even seems slightly faster than the
+bit-shifting it replaces now.
+
+=back
+
 =item V0.51
 
 =over 1
 
-=item Fixed C<to_hash()> that the change to iterative tree walking had broken. Yes, there are test for it, too now.
+=item Fixed C<to_hash()> that the change to iterative tree walking had broken. Yes, there are tests for it, too now.
 
 =item Dropped the redundant address parsing/printing code in favor of L<Socket|Socket> functions.
 
