@@ -9,7 +9,7 @@ WriteMakefile(
 	ABSTRACT            => 'Hash-like lookup table based on CIDR blocks',
     ($ExtUtils::MakeMaker::VERSION >= 6.3002 ? ('LICENSE'=> 'perl') : ()),
     PL_FILES            => {},
-    MIN_PERL_VERSION    => 5.010001,
+    MIN_PERL_VERSION    => 5.008008,
     PREREQ_PM => {
         'parent'      => 0,
         'Bit::Vector' => 0,
@@ -20,6 +20,6 @@ WriteMakefile(
         'Test::Class'               => 0,
         'Class::Data::Inheritable'  => 0,
     },
-    dist                => { COMPRESS => 'bzip2', SUFFIX => 'bz', },
+    dist                => { COMPRESS => 'bzip2', SUFFIX => 'bz2', },
     clean               => { FILES => 'Net-CIDR-Lookup-*' },
 );

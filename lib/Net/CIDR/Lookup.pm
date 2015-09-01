@@ -88,7 +88,7 @@ use integer;
 use Carp;
 use Socket qw/ inet_ntop inet_pton AF_INET /;
 
-our $VERSION = '0.52';
+our $VERSION = '0.53';
 
 BEGIN {
 # IPv4 address from dotted-quad to integer
@@ -379,8 +379,13 @@ sub _add {
         and $node->[$bit ^ 1] eq $val
         and croak 'merging two /1 blocks is not supported yet';
     while(1) {
-        $node = pop @node_stack // last;
-        last unless(defined $$node->[0] and defined $$node->[1] and $$node->[0] eq $$node->[1]);
+        $node = pop @node_stack;
+        last unless(
+            defined $node
+                and defined $$node->[0]
+                and defined $$node->[1]
+                and $$node->[0] eq $$node->[1]
+        );
         $$node = $val;
     }
 }
