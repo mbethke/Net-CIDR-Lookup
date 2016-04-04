@@ -83,12 +83,12 @@ See L<Net::CIDR::Lookup::Changes>
 
 package Net::CIDR::Lookup;
 use strict;
-use 5.010001;
+use 5.008008;
 use integer;
 use Carp;
 use Socket qw/ inet_ntop inet_pton AF_INET /;
 
-our $VERSION = '0.53';
+our $VERSION = '0.54';
 
 BEGIN {
 # IPv4 address from dotted-quad to integer
