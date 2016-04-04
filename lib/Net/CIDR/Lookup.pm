@@ -32,7 +32,7 @@ Since V0.5, errors are signalled by an exception so method calls should generall
   $cidr->add("192.168.41.0/24",2);     # Stays separate due to different value
   $cidr->add("192.168.42.128/25",2);   # Error: overlaps with different value
 
-  $val = $h->lookup("192.168.41.123"); # => 2
+  $val = $cidr->lookup("192.168.41.123"); # => 2
 
   $h = $cidr->to_hash;                 # Convert tree to a hash
   print "$k => $v\n" while(($k,$v) = each %$h);
