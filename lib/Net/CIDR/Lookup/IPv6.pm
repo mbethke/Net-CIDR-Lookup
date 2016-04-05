@@ -47,7 +47,7 @@ use Socket qw/ inet_ntop inet_pton AF_INET6 /;
 use Bit::Vector;
 use parent 'Net::CIDR::Lookup';
 
-our $VERSION = '0.51';
+our $VERSION = '0.55';
 
 =head2 add
 
@@ -338,7 +338,8 @@ sub _add {
         and $node->[$bit ^ 1] eq $val
         and croak 'merging two /1 blocks is not supported yet';
     while(1) {
-        $node = pop @node_stack // last MERGECHECK;
+        $node = pop @node_stack;
+        last MERGECHECK unless defined $node;
         last unless(defined $$node->[0] and defined $$node->[1] and $$node->[0] eq $$node->[1]);
         $$node = $val;
     }
