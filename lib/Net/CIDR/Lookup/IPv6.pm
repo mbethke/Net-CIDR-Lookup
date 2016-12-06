@@ -30,10 +30,6 @@ This module requires an IPv6-enabled L<Socket|Socket.pm>. As there is no way to 
 #
 #  $cidr = Net::CIDR::Lookup::IPv6->new;
 
-=head1 VERSION HISTORY
-
-See L<Net::CIDR::Lookup::IPv6::Changes>
-
 =head1 METHODS
 
 =cut

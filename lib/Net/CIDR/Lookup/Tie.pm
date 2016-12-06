@@ -30,10 +30,6 @@ usually far greater than that of explicitly stored key/value pairs.
 
   foreach(keys %h) { ... }			 # Do anything you'd do with a regular hash
 
-=head1 VERSION HISTORY
-
-See L<Net::CIDR::Lookup::Tie::Changes>
-
 =head1 METHODS
 
 =cut

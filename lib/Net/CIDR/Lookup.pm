@@ -73,10 +73,6 @@ Since V0.5, errors are signalled by an exception so method calls should generall
   # 1.2.3.11/32 => 42
   # 1.2.4.192/27 => 42
 
-=head1 VERSION HISTORY
-
-See L<Net::CIDR::Lookup::Changes>
-
 =head1 METHODS
 
 =cut
@@ -500,5 +496,23 @@ sub _do_chunk {
         push @$chunks, [ $prefix, 31-$ix1 ];
     }
 }
+
+=head1 SEE ALSO
+
+L<Net::CIDR>, L<Net::CIDR::Lite>
+
+=head1 AUTHOR
+
+Matthias Bethke, E<lt>matthias@towiski.deE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2008-2016 by Matthias Bethke.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.20.2 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
 
 1;
