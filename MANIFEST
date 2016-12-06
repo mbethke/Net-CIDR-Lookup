@@ -1,19 +1,19 @@
-lib/Net/CIDR/Lookup.pm
-lib/Net/CIDR/Lookup/Changes.pod
-lib/Net/CIDR/Lookup/IPv6.pm
-lib/Net/CIDR/Lookup/IPv6/Changes.pod
-lib/Net/CIDR/Lookup/Tie.pm
-lib/Net/CIDR/Lookup/Tie/Changes.pod
-Makefile.PL
+Changes
 MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
+Makefile.PL
 README
+lib/Net/CIDR/Lookup.pm
+lib/Net/CIDR/Lookup/IPv6.pm
+lib/Net/CIDR/Lookup/Tie.pm
 t/00-load.t
+t/Net-CIDR-Lookup.t
+t/Wine.t
 t/boilerplate.t
 t/lib/My/Test/Class.pm
 t/lib/Net/CIDR/Lookup/IPv6/Test.pm
 t/lib/Net/CIDR/Lookup/Test.pm
 t/lib/Net/CIDR/Lookup/Tie/Test.pm
-t/Net-CIDR-Lookup.t
+t/manifest.t
 t/pod-coverage.t
 t/pod.t
