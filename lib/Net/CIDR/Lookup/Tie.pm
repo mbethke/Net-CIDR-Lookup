@@ -45,7 +45,7 @@ use warnings;
 use Carp;
 use Net::CIDR::Lookup;
 
-our $VERSION = '0.51';
+use version 0.77; our $VERSION = version->declare('v1.0.0');
 
 sub TIEHASH {   ## no critic (Subroutines::RequireArgUnpacking)
     my $class = shift;

@@ -88,7 +88,7 @@ use integer;
 use Carp;
 use Socket qw/ inet_ntop inet_pton AF_INET /;
 
-our $VERSION = '0.55';
+use version 0.77; our $VERSION = version->declare('v1.0.0');
 
 BEGIN {
 # IPv4 address from dotted-quad to integer

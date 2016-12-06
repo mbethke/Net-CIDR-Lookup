@@ -11,6 +11,7 @@ WriteMakefile(
     PL_FILES            => {},
     MIN_PERL_VERSION    => 5.008008,
     PREREQ_PM => {
+        'version'     => 0,
         'parent'      => 0,
         'Bit::Vector' => 0,
         'Socket'      => 1.94,
