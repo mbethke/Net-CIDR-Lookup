@@ -342,6 +342,15 @@ sub _add {
     my ($bit, $checksub);
     my @node_stack;
 
+    # Handle /0 case
+    if ($nbits == 0) {
+      $node->add('0.0.0.1/2', $val);
+      $node->add('64.0.0.1/2', $val);
+      $node->add('128.0.0.1/2', $val);
+      $node->add('192.0.0.1/2', $val);
+      return 1;
+    }
+
     DESCEND:
     while(1) {
 	    $bit = $addr & 0x80000000 ? 1 : 0;
