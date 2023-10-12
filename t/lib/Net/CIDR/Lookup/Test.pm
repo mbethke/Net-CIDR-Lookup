@@ -24,6 +24,7 @@ sub check_methods : Test(startup => 8) {
 sub before : Test(setup) {
     my $self = shift;
     $self->{tree} = $self->class->new;
+    $self->{tree_0} = $self->class->new;
 }
 
 #-------------------------------------------------------------------------------
@@ -56,10 +57,12 @@ sub add_range : Tests(4) {
     is(scalar keys %$h, 19, 'Range expansion: number of keys');
 }
 
-sub collision : Test(1) {
+sub collision : Test(4) {
     my $t = shift->{tree};
     $t->add('192.168.0.129/25', 42);
     dies_ok(sub { $t->add('192.168.0.160/31', 23) }, 'Collision: add() failed as expected');
+    dies_ok(sub { $t->add('1.2.3.4/0', 23) }, 'Collision: add() failed as expected');
+    dies_ok(sub { $t->add('1.2.3.4/0', 42) }, 'Collision: add() failed as expected');
 }
 
 sub benign_collision : Test(1) {
@@ -150,6 +153,32 @@ sub to_hash : Tests(3) {
     ok((defined $h->{'31.201.1.36/30'} and defined $h->{'32.105.59.0/24'}), 'to_hash(): correct keys');
     ok((1 == $h->{'31.201.1.36/30'} and 1 == $h->{'32.105.59.0/24'}), 'to_hash(): correct values');
     ok(2 == keys %$h, 'to_hash(): no spurious keys');
+}
+
+sub test_0 : Test(16) {
+    my $t = shift->{tree_0};
+    # Test for the /0 special case
+    $t->add('192.0.0.0/0', 33); # This caused a crash before
+    is($t->lookup('1.3.123.234'), 33, 'Block /0 lookup OK (1.3.123.234)');
+    is($t->lookup('70.88.100.1'), 33, 'Block /0 lookup OK (70.88.100.1)');
+    is($t->lookup('150.150.150.2'), 33, 'Block /0 lookup OK (150.150.150.2)');
+    is($t->lookup('192.168.0.161'), 33, 'Block /0 lookup OK (192.168.0.161)');
+    dies_ok(sub { $t->add('1.2.3.4/32', 66) }, 'Collision: add() failed as expected');
+    lives_ok(sub { $t->add('1.2.3.4/32', 33) }, 'Benign collision: add() succeeded');
+
+    $t->clear;
+    is($t->lookup('1.3.123.234'), undef, 'Result cleared OK (1.3.123.234)');
+    is($t->lookup('70.88.100.1'), undef, 'Result cleared OK (70.88.100.1)');
+    is($t->lookup('150.150.150.2'), undef, 'Result cleared OK (150.150.150.2)');
+    is($t->lookup('192.168.0.161'), undef, 'Result cleared OK (192.168.0.161)');
+
+    $t->add_range('0.0.0.0-255.255.255.255', 44); # This also caused a crash before
+    is($t->lookup('1.3.123.234'), 44, 'Block /0 lookup OK (1.3.123.234)');
+    is($t->lookup('70.88.100.1'), 44, 'Block /0 lookup OK (70.88.100.1)');
+    is($t->lookup('150.150.150.2'), 44, 'Block /0 lookup OK (150.150.150.2)');
+    is($t->lookup('192.168.0.161'), 44, 'Block /0 lookup OK (192.168.0.161)');
+    dies_ok(sub { $t->add('1.2.3.4/32', 66) }, 'Collision: add() failed as expected');
+    lives_ok(sub { $t->add('1.2.3.4/32', 44) }, 'Benign collision: add() succeeded');
 }
 
 sub clear : Tests(1) {
